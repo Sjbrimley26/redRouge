@@ -1,0 +1,13 @@
+{
+  "short_name": "Rougelike",
+  "name": "Rougelike",
+  "icons": [{
+    "src": "logo.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#2c5e80",
+  "background_color": "#2c5e80"
+}
