@@ -1,0 +1,17 @@
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+}
+
+#background, #foreground {
+  position: absolute;
+  background: transparent;
+  top: 0;
+  left: 0;
+}
