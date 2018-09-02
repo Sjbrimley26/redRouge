@@ -3,7 +3,8 @@ import { get2DContext, getCanvas } from "./general";
 import {
   drawScreen,
   resizeCanvas,
-  renderSprite
+  renderSprite,
+  renderMultipleSprites
 } from "./draw";
 
 module.exports = {
@@ -11,5 +12,6 @@ module.exports = {
   getCanvas,
   resizeCanvas,
   drawScreen,
-  renderSprite
+  renderSprite,
+  renderMultipleSprites
 };

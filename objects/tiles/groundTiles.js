@@ -1,4 +1,7 @@
-import { Sprite, Tile } from "../../classes";
+'use strict'
+
+import Sprite from "../../classes/Sprite";
+import Tile from "../../classes/Tile";
 
 const defaultTile = {
   size: 64,
@@ -13,7 +16,7 @@ const groundTileColors = [
   "rgb(0, 0, 0)"
 ];
 
-const groundTiles = groundTileColors.map(color => {
+export const groundTiles = groundTileColors.map(color => {
   return Tile(
     Sprite({ 
       ...defaultTile,
@@ -24,7 +27,7 @@ const groundTiles = groundTileColors.map(color => {
   );
 });
 
-const redTile = Tile(
+export const redTile = Tile(
   Sprite(
     {
       ...defaultTile,
@@ -38,8 +41,3 @@ const redTile = Tile(
     ]
   }
 );
-
-module.exports = {
-  groundTiles,
-  redTile
-};

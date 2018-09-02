@@ -4,7 +4,7 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 const SWPrecacheWebpackPlugin = require("sw-precache-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
-
+const CircularDependencyPlugin = require('circular-dependency-plugin');
 
 module.exports = {
   entry: "./src/index.js",
@@ -73,7 +73,16 @@ module.exports = {
 
     new CopyWebpackPlugin([{
       from: 'src/pwa'
-    }])
+    }]),
+
+    new CircularDependencyPlugin({
+      // exclude detection of files based on a RegExp
+      exclude: /a\.js|node_modules/,
+      // add errors to webpack instead of warnings
+      failOnError: true,
+      // set the current working directory for displaying module paths
+      cwd: process.cwd(),
+    })
   ],
 
   optimization: {
