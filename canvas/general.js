@@ -5,4 +5,3 @@ exports.getCanvas = async id => {
 exports.get2DContext = async canvas => {
   return canvas.getContext("2d");
 };
-

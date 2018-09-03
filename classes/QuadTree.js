@@ -1,17 +1,17 @@
-const QuadTree = ( 
-  level = 0, 
+const QuadTree = (
+  level = 0,
   bounds = {
     x: 0,
     y: 0,
     width: 0,
-    height: 0
-  }
+    height: 0,
+  },
 ) => {
   const MAX_OBJECTS = 10;
   const MAX_LEVELS = 5;
 
   let objects = [];
-  
+
   return {
     bounds,
     nodes: [],
@@ -19,7 +19,7 @@ const QuadTree = (
     clear() {
       objects = [];
       for (let node of this.nodes) {
-        node.clear()
+        node.clear();
       }
       this.nodes = [];
     },
@@ -80,7 +80,7 @@ const QuadTree = (
       }
       objects.push(obj);
       // Prevent infinite splitting
-      if (objects.length > MAX_OBJECTS && level < MAX_LEVELS ) {
+      if (objects.length > MAX_OBJECTS && level < MAX_LEVELS) {
         if (this.nodes[0] == null) {
           this.split();
         }
@@ -88,7 +88,7 @@ const QuadTree = (
         while (i < objects.length) {
           let index = this.getIndex(objects[i]);
           if (index != -1) {
-            this.nodes[index].insert((objects.splice(i, 1))[0]);
+            this.nodes[index].insert(objects.splice(i, 1)[0]);
           } else {
             i++;
           }
@@ -107,12 +107,12 @@ const QuadTree = (
       let verticalMidpoint = this.bounds.x + this.bounds.width / 2;
       let horizontalMidpoint = this.bounds.y + this.bounds.height / 2;
       // Object can fit completely within the top quadrant
-      let topQuadrant = (obj.y < horizontalMidpoint && obj.y + obj.height < horizontalMidpoint);
+      let topQuadrant =
+        obj.y < horizontalMidpoint && obj.y + obj.height < horizontalMidpoint;
       // Object can fit completely within the bottom quandrant
-      let bottomQuadrant = (obj.y > horizontalMidpoint);
+      let bottomQuadrant = obj.y > horizontalMidpoint;
       // Object can fit completely within the left quadrants
-      if (obj.x < verticalMidpoint &&
-        obj.x + obj.width < verticalMidpoint) {
+      if (obj.x < verticalMidpoint && obj.x + obj.width < verticalMidpoint) {
         if (topQuadrant) {
           index = 1;
         } else if (bottomQuadrant) {
@@ -136,36 +136,54 @@ const QuadTree = (
 
     split() {
       // Bitwise or [html5rocks]
-      let subWidth = (this.bounds.width / 2)
-      let subHeight = (this.bounds.height / 2);
-      this.nodes[0] = QuadTree(0, {
-        x: this.bounds.x + subWidth,
-        y: this.bounds.y,
-        width: subWidth,
-        height: subHeight
-      }, level + 1);
-      this.nodes[1] = QuadTree(0, {
-        x: this.bounds.x,
-        y: this.bounds.y,
-        width: subWidth,
-        height: subHeight
-      }, level + 1);
-      this.nodes[2] = QuadTree(0, {
-        x: this.bounds.x,
-        y: this.bounds.y + subHeight,
-        width: subWidth,
-        height: subHeight
-      }, level + 1);
-      this.nodes[3] = QuadTree(0, {
-        x: this.bounds.x + subWidth,
-        y: this.bounds.y + subHeight,
-        width: subWidth,
-        height: subHeight
-      }, level + 1);
-    }
-  
-  };  
+      let subWidth = this.bounds.width / 2;
+      let subHeight = this.bounds.height / 2;
 
+      this.nodes[0] = QuadTree(
+        0,
+        {
+          x: this.bounds.x + subWidth,
+          y: this.bounds.y,
+          width: subWidth,
+          height: subHeight,
+        },
+        level + 1,
+      );
+
+      this.nodes[1] = QuadTree(
+        0,
+        {
+          x: this.bounds.x,
+          y: this.bounds.y,
+          width: subWidth,
+          height: subHeight,
+        },
+        level + 1,
+      );
+
+      this.nodes[2] = QuadTree(
+        0,
+        {
+          x: this.bounds.x,
+          y: this.bounds.y + subHeight,
+          width: subWidth,
+          height: subHeight,
+        },
+        level + 1,
+      );
+
+      this.nodes[3] = QuadTree(
+        0,
+        {
+          x: this.bounds.x + subWidth,
+          y: this.bounds.y + subHeight,
+          width: subWidth,
+          height: subHeight,
+        },
+        level + 1,
+      );
+    },
+  };
 };
 
 export default QuadTree;

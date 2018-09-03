@@ -4,7 +4,9 @@ import {
   drawScreen,
   resizeCanvas,
   renderSprite,
-  renderMultipleSprites
+  renderMultipleSprites,
+  zoomIn,
+  zoomOut,
 } from "./draw";
 
 module.exports = {
@@ -13,5 +15,7 @@ module.exports = {
   resizeCanvas,
   drawScreen,
   renderSprite,
-  renderMultipleSprites
+  renderMultipleSprites,
+  zoomIn,
+  zoomOut,
 };

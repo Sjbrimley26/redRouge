@@ -9,5 +9,5 @@ module.exports = {
   Tile,
   QuadTree,
   Player,
-  Camera
+  Camera,
 };

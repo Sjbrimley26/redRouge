@@ -1,4 +1,4 @@
-'use strict'
+"use strict";
 
 import "babel-polyfill";
 
@@ -6,104 +6,90 @@ import "../assets/styles/global.scss";
 
 import { debounce } from "lodash";
 
-import { 
+import {
   createTileMap,
   TILE_SIZE,
   MAP_HEIGHT,
-  MAP_WIDTH
+  MAP_WIDTH,
 } from "../objects/map";
 
 import { QuadTree, Player, Camera } from "../classes";
 
-import { 
-  getCanvas, 
+import {
+  getCanvas,
   resizeCanvas,
   renderMultipleSprites,
+  // zoomOut,
+  // zoomIn
 } from "../canvas";
+
+import { detectCollision } from "../logic";
 
 const gameMap = createTileMap();
 
 const gameObjects = new Map();
 
+const quadtree = QuadTree(0, {
+  x: 0,
+  y: 0,
+  width: MAP_WIDTH,
+  height: MAP_HEIGHT,
+});
+
 const player = Player();
 const camera = Camera();
 
-player.addMovementListener("camera", player => {
-  let x = player.x - ( camera.width / 2 );
-  let y = player.y - ( camera.height / 2 );
+gameObjects.set("player", player);
 
-  if ( x % 64 !== 0 ) {
-    x = Math.floor(x / 64) * 64;
+player.addMovementListener("cameraTracker", player => {
+  let x = player.x - camera.width / (2 * camera.zoomFactor);
+  let y = player.y - camera.height / (2 * camera.zoomFactor);
+
+  if (x % TILE_SIZE !== 0) {
+    x = Math.floor(x / TILE_SIZE) * TILE_SIZE;
   }
 
-  if ( y % 64 !== 0 ) {
-    y = Math.floor(y / 64) * 64;
+  if (y % TILE_SIZE !== 0) {
+    y = Math.floor(y / TILE_SIZE) * TILE_SIZE;
   }
 
   camera.relocate(x, y);
-
 });
 
-gameObjects.set("player", player);
-
-const quadtree = QuadTree(0, { x:0, y:0, width: MAP_WIDTH, height: MAP_HEIGHT });
-
-
 window.onload = () => {
-  render();
   camera.resize();
+  render();
   startTurn();
+
+  gameMap.addEffectToTile(192, 128, {
+    type: "poison",
+    duration: 3,
+  });
 };
 
-window.addEventListener("resize", debounce(() => {
-  getCanvas("background")
-    .then(resizeCanvas)
-    .then(canvas => renderMultipleSprites(canvas, camera, gameMap.tiles))
-    .then(canvas => renderMultipleSprites(canvas, camera, gameObjects))
+window.addEventListener(
+  "resize",
+  debounce(() => {
+    getCanvas("background")
+      .then(resizeCanvas)
+      .then(canvas => renderMultipleSprites(canvas, camera, gameMap.tiles))
+      .then(canvas => renderMultipleSprites(canvas, camera, gameObjects));
 
-  camera.resize();
-  
-}, 100));
-
-
+    camera.resize();
+  }, 100),
+);
 
 const render = () => {
-
   getCanvas("background")
     .then(resizeCanvas)
+    // .then(canvas => {
+    //  camera.setZoom("zoomOut");
+    //  return zoomOut(canvas);
+    // })
     .then(canvas => renderMultipleSprites(canvas, camera, gameMap.tiles))
-    .then(canvas => renderMultipleSprites(canvas, camera, gameObjects))
+    .then(canvas => renderMultipleSprites(canvas, camera, gameObjects));
 
   window.requestAnimationFrame(render);
-};
-
-const detectCollision = async () => {
-  let objects = [];
-  quadtree.getAllObjects(objects);
-
-  for (let objX of objects) {
-    let obj = [];
-    quadtree.findObjects(obj, objX);
-
-    for (let objY of obj) {
-      if (
-        (
-          objX.isCollidableWith(objY) ||
-          objY.isCollidableWith(objX)
-        ) &&
-        (
-          objX.x === objY.x &&
-          objX.y === objY.y
-        )
-      ) {
-        objX.isColliding = true;
-        objY.isColliding = true;
-        objX.collidingWith = {...objY};
-        objY.collidingWith = {...objX};
-      }
-    }
-  }
-
 };
 
 const startTurn = () => {
@@ -113,16 +99,12 @@ const startTurn = () => {
   const originY = player.y;
 
   quadtree.clear();
-  gameMap.tiles.forEach(tile => quadtree.insert(tile));
+  gameMap.wallTiles
+    .concat(gameMap.triggerTiles)
+    .forEach(tile => quadtree.insert(tile));
 
   const addKeydownMovement = e => {
     const mover = { ...gameObjects.get("player") };
-    mover.isColliding = false;
-    mover.collidingWith = undefined;
-    mover.x = player.x < 0 ? 0 : player.x;
-    mover.x = player.x > MAP_WIDTH - TILE_SIZE ? MAP_WIDTH - TILE_SIZE : player.x;
-    mover.y = player.y < 0 ? 0 : player.y;
-    mover.y > MAP_HEIGHT - TILE_SIZE ? MAP_HEIGHT - TILE_SIZE : player.y;
 
     switch (e.keyCode) {
       case 37:
@@ -178,44 +160,63 @@ const startTurn = () => {
         break;
     }
 
+    const relocateIfPastBorder = player => {
+      if (player.x < 0) {
+        player.x = 0;
+      }
+
+      if (player.x > MAP_WIDTH - TILE_SIZE) {
+        player.x = MAP_WIDTH - TILE_SIZE;
+      }
+
+      if (player.y < 0) {
+        player.y = 0;
+      }
+
+      if (player.y > MAP_HEIGHT - TILE_SIZE) {
+        player.y = MAP_HEIGHT - TILE_SIZE;
+      }
+    };
+
+    relocateIfPastBorder(mover);
+
     gameObjects.set("player", mover);
 
     for (let sprite of gameObjects.values()) {
       quadtree.insert(sprite);
     }
 
-    detectCollision();
+    detectCollision(quadtree);
 
     document.removeEventListener("keydown", addKeydownMovement);
 
-    if (gameObjects.get("player").isColliding) {
+    if (
+      gameObjects.get("player").isColliding &&
+      gameObjects.get("player").collidingWith.type === "wall"
+    ) {
       let tempPlayer = { ...gameObjects.get("player") };
       console.log(`You ran into a ${tempPlayer.collidingWith.type}`);
       tempPlayer.x = originX;
       tempPlayer.y = originY;
       gameObjects.set("player", tempPlayer);
-      document.addEventListener("keydown", addKeydownMovement);
+      endTurn();
+    } else if (gameObjects.get("player").isColliding) {
+      // let tempPlayer = { ...gameObjects.get("player") };
+      // console.log(`You stepped on a ${tempPlayer.collidingWith.type}`);
+      endTurn();
+    } else {
+      endTurn();
     }
   };
 
-  const addEnterListener = e => {
-    if (e.keyCode === 13) {
-      document.removeEventListener("keydown", addKeydownMovement);
-      document.removeEventListener("keydown", addEnterListener);
-      endTurn();
-    }
-  }
-
-  document.addEventListener("keydown", addEnterListener);
-
   document.addEventListener("keydown", addKeydownMovement);
 
-  // Might need to move everything BUT the player, in lieu of a camera
-  // Then when the player gets close to an edge, the camera stops
-  // and the player begins moving
-
+  const endTurn = () => {
+    document.removeEventListener("keydown", addKeydownMovement);
+    let tempPlayer = gameObjects.get("player");
+    tempPlayer.collidingWith = {};
+    tempPlayer.isColliding = false;
+    gameObjects.set("player", tempPlayer);
+    startTurn();
+  };
 };
-
-const endTurn = () => {
-  startTurn();
-}

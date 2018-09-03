@@ -5,16 +5,22 @@ module.exports = {
         "es6": true
     },
     "parser": "babel-eslint",
-    "extends": "eslint:recommended",
+    "extends": [
+      "eslint:recommended",
+      "prettier"
+    ],
     "parserOptions": {
         "sourceType": "module"
     },
+    "plugins": [
+      "prettier"
+    ],
     "rules": {
         "indent": [
             "error",
             2,
             {
-              "indentSwitchCase": true
+              "SwitchCase": 1
             }
         ],
         "linebreak-style": [
@@ -29,6 +35,7 @@ module.exports = {
             "error",
             "always"
         ],
-        "no-console": "off"
+        "no-console": "off",
+        "prettier/prettier": "error"
     }
 };

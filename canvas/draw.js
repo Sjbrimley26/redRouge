@@ -6,22 +6,16 @@ const resizeCanvas = async canvas => {
   return canvas;
 };
 
-const renderSprite = async ( canvas, camera, sprite ) => {
-  let ctx = await get2DContext(canvas)
-  
-  if ( 
-    sprite.x >= camera.x && 
-    sprite.x <= camera.xMax &&
-    sprite.y >= camera.y &&
-    sprite.y <= camera.yMax
-  ) { 
+const renderSprite = async (canvas, camera, sprite) => {
+  let ctx = await get2DContext(canvas);
 
-    let {
-      size,
-      x,
-      y,
-      color
-    } = sprite;
+  if (
+    sprite.x >= camera.x &&
+    sprite.x <= camera.xMax * 2 &&
+    sprite.y >= camera.y &&
+    sprite.y <= camera.yMax * 2
+  ) {
+    let { size, x, y, color } = sprite;
 
     x -= camera.x;
     y -= camera.y;
@@ -33,9 +27,9 @@ const renderSprite = async ( canvas, camera, sprite ) => {
   return canvas;
 };
 
-const renderMultipleSprites = async ( canvas, camera, arrayOrMap ) => {
+const renderMultipleSprites = async (canvas, camera, arrayOrMap) => {
   if (Array.isArray(arrayOrMap)) {
-    for ( let sprite of arrayOrMap ) {
+    for (let sprite of arrayOrMap) {
       renderSprite(canvas, camera, sprite);
     }
   } else {
@@ -47,8 +41,29 @@ const renderMultipleSprites = async ( canvas, camera, arrayOrMap ) => {
   return canvas;
 };
 
+// These work, but I need to adjust the camera to show more or less objects
+// depending on whether the view is zoomed in or out
+
+// Update: Got it working but the camera is still a bit funky when zoomed out.
+// It works fine until you start moving the camera down and then a large
+// bblank, black spoce appears.
+
+const zoomIn = async canvas => {
+  let ctx = await get2DContext(canvas);
+  ctx.scale(2, 2);
+  return canvas;
+};
+
+const zoomOut = async canvas => {
+  let ctx = await get2DContext(canvas);
+  ctx.scale(0.5, 0.5);
+  return canvas;
+};
+
 module.exports = {
   resizeCanvas,
   renderMultipleSprites,
-  renderSprite
-}
+  renderSprite,
+  zoomIn,
+  zoomOut,
+};

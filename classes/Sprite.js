@@ -1,10 +1,4 @@
-const Sprite = ({
-  size,
-  x,
-  y,
-  color
-}) => {
-  
+const Sprite = ({ size, x, y, color }) => {
   let sprite = {
     size,
     height: size,
@@ -13,14 +7,15 @@ const Sprite = ({
     y,
     color,
     collidableWith: [],
-    isColliding: false,
     collidingWith: {},
-    collisionType: "",
+    isColliding: false,
     type: "",
+
+    onCollide() {},
 
     isCollidableWith(object) {
       return this.collidableWith.some(type => type === object.type);
-    }
+    },
   };
 
   return sprite;
