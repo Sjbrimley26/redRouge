@@ -1,11 +1,16 @@
+// @flow
+
 import { groundTiles } from "../tiles";
-import { sample, find } from "lodash";
+import sample from "lodash/sample";
+import find from "lodash/find";
 import { MAP_HEIGHT, MAP_WIDTH, TILE_SIZE } from "./config";
+import { doneColliding } from "../../logic";
+import type { FloorTileType, EffectType } from "../../flowTypes";
 
 const createTileMap = (
-  width = MAP_WIDTH,
-  height = MAP_HEIGHT,
-  tile_size = TILE_SIZE,
+  width: number = MAP_WIDTH,
+  height: number = MAP_HEIGHT,
+  tile_size: number = TILE_SIZE
 ) => {
   let tiles = [];
 
@@ -20,33 +25,32 @@ const createTileMap = (
     }
   }
 
-  const isType = type => tile => tile.type === type;
-
-  const doneColliding = tile => {
-    tile.isColliding = false;
-    tile.collidingWith = {};
+  const isType = (type: string) => (tile: FloorTileType): boolean => {
+    return tile.type === type;
   };
 
   const map = {
     groundTiles: tiles.filter(isType("ground")),
 
-    wallTiles: tiles.filter(isType("wall")).map(tile => {
-      tile.onCollide = () => doneColliding(tile);
-      return tile;
-    }),
+    wallTiles: tiles.filter(isType("wall")).map(
+      (tile: FloorTileType): FloorTileType => {
+        tile.onCollide = (): void => doneColliding(tile);
+        return tile;
+      }
+    ),
 
     triggerTiles: tiles.filter(isType("trigger")),
 
     tiles,
 
-    getTileAtXY(x, y) {
+    getTileAtXY(x: number, y: number) {
       return find(this.tiles, {
         x: x,
         y: y,
       });
     },
 
-    addEffectToTile(x, y, effect) {
+    addEffectToTile(x: number, y: number, effect: EffectType) {
       let affectedTile = this.getTileAtXY(x, y);
       affectedTile.type = "trigger";
       affectedTile.color = "rgb(0, 0, 255)";

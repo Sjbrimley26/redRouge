@@ -1,12 +1,22 @@
+// @flow
+
 import { get2DContext } from "./general";
 
-const resizeCanvas = async canvas => {
-  canvas.width = document.body.clientWidth;
-  canvas.height = document.body.clientHeight;
+import type { CanvasType, CameraType, SpriteType } from "../flowTypes";
+
+const resizeCanvas = async (canvas: CanvasType) => {
+  if (document.body != null) {
+    canvas.width = document.body.clientWidth;
+    canvas.height = document.body.clientHeight;
+  }
   return canvas;
 };
 
-const renderSprite = async (canvas, camera, sprite) => {
+const renderSprite = async (
+  canvas: CanvasType,
+  camera: CameraType,
+  sprite: SpriteType
+) => {
   let ctx = await get2DContext(canvas);
 
   if (
@@ -27,7 +37,11 @@ const renderSprite = async (canvas, camera, sprite) => {
   return canvas;
 };
 
-const renderMultipleSprites = async (canvas, camera, arrayOrMap) => {
+const renderMultipleSprites = async (
+  canvas: CanvasType,
+  camera: CameraType,
+  arrayOrMap: any
+) => {
   if (Array.isArray(arrayOrMap)) {
     for (let sprite of arrayOrMap) {
       renderSprite(canvas, camera, sprite);
@@ -48,13 +62,13 @@ const renderMultipleSprites = async (canvas, camera, arrayOrMap) => {
 // It works fine until you start moving the camera down and then a large
 // bblank, black spoce appears.
 
-const zoomIn = async canvas => {
+const zoomIn = async (canvas: CanvasType) => {
   let ctx = await get2DContext(canvas);
   ctx.scale(2, 2);
   return canvas;
 };
 
-const zoomOut = async canvas => {
+const zoomOut = async (canvas: CanvasType) => {
   let ctx = await get2DContext(canvas);
   ctx.scale(0.5, 0.5);
   return canvas;

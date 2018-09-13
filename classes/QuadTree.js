@@ -5,7 +5,7 @@ const QuadTree = (
     y: 0,
     width: 0,
     height: 0,
-  },
+  }
 ) => {
   const MAX_OBJECTS = 10;
   const MAX_LEVELS = 5;
@@ -147,7 +147,7 @@ const QuadTree = (
           width: subWidth,
           height: subHeight,
         },
-        level + 1,
+        level + 1
       );
 
       this.nodes[1] = QuadTree(
@@ -158,7 +158,7 @@ const QuadTree = (
           width: subWidth,
           height: subHeight,
         },
-        level + 1,
+        level + 1
       );
 
       this.nodes[2] = QuadTree(
@@ -169,7 +169,7 @@ const QuadTree = (
           width: subWidth,
           height: subHeight,
         },
-        level + 1,
+        level + 1
       );
 
       this.nodes[3] = QuadTree(
@@ -180,7 +180,7 @@ const QuadTree = (
           width: subWidth,
           height: subHeight,
         },
-        level + 1,
+        level + 1
       );
     },
   };

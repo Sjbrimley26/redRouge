@@ -1,3 +1,5 @@
+// @flow
+
 "use strict";
 
 import Sprite from "../../classes/Sprite";
@@ -10,13 +12,14 @@ const defaultTile = {
 };
 
 const groundTileColors = [
-  "rgb(0, 255, 0)",
+  "rgb(80, 255, 90)",
   "rgb(60, 100, 0)",
   "rgb(100, 200, 40)",
+  "rgb(0, 255, 0)",
   "rgb(0, 0, 0)",
 ];
 
-export const groundTiles = groundTileColors.map(color => {
+export const groundTiles: any = groundTileColors.map((color: string) => {
   return Tile(
     Sprite({
       ...defaultTile,
@@ -24,7 +27,7 @@ export const groundTiles = groundTileColors.map(color => {
     }),
     {
       type: color == "rgb(0, 0, 0)" ? "wall" : "ground",
-    },
+    }
   );
 });
 
@@ -34,6 +37,6 @@ export const redTile = Tile(
       ...defaultTile,
       color: "rgb(255,0,0)",
     },
-    {},
-  ),
+    {}
+  )
 );
