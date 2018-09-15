@@ -8,7 +8,7 @@ import "../assets/styles/global.scss";
 
 import debounce from "lodash/debounce";
 
-import type { EntityType } from "../flowTypes";
+import type { EntityType, CameraType } from "../flowTypes";
 
 import {
   createTileMap,
@@ -32,6 +32,7 @@ import {
   relocateIfPastBorder,
   triggerKeyAction,
   doneColliding,
+  checkIfPlayerHitWall,
 } from "../logic";
 
 const gameMap = createTileMap();
@@ -45,8 +46,8 @@ const quadtree = QuadTree(0, {
   height: MAP_HEIGHT,
 });
 
-const player = Player();
-const camera = Camera();
+const player: EntityType = Player();
+const camera: CameraType = Camera();
 
 gameObjects.set("player", (player: EntityType));
 
@@ -140,6 +141,7 @@ const startTurn = () => {
     document.removeEventListener("keydown", addKeydownMovement);
     let tempPlayer: EntityType | void = gameObjects.get("player");
     if (tempPlayer === undefined) {
+      // will literally never happen, but flow...
       return;
     }
     doneColliding(tempPlayer);
@@ -147,16 +149,4 @@ const startTurn = () => {
     gameObjects.set("player", tempPlayer);
     startTurn();
   };
-};
-
-const checkIfPlayerHitWall = (player: EntityType | void) => {
-  if (
-    player !== undefined &&
-    player.isColliding === true &&
-    player.collidingWith.type === "wall"
-  ) {
-    return true;
-  } else {
-    return false;
-  }
 };

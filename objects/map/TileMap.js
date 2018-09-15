@@ -1,29 +1,18 @@
 // @flow
 
-import { groundTiles } from "../tiles";
 import sample from "lodash/sample";
-import find from "lodash/find";
+import { livingTileColors } from "../tiles";
 import { MAP_HEIGHT, MAP_WIDTH, TILE_SIZE } from "./config";
 import { doneColliding } from "../../logic";
 import type { FloorTileType, EffectType } from "../../flowTypes";
+import { generateTiles } from "./mapGenerator";
 
 const createTileMap = (
   width: number = MAP_WIDTH,
   height: number = MAP_HEIGHT,
   tile_size: number = TILE_SIZE
 ) => {
-  let tiles = [];
-
-  for (let i = 0; i < width; i += tile_size) {
-    for (let j = 0; j < height; j += tile_size) {
-      let tile = {
-        ...sample(groundTiles),
-      };
-      tile.x = i;
-      tile.y = j;
-      tiles.push(tile);
-    }
-  }
+  let tiles = generateTiles(width, height, tile_size, 4);
 
   const isType = (type: string) => (tile: FloorTileType): boolean => {
     return tile.type === type;
@@ -44,10 +33,7 @@ const createTileMap = (
     tiles,
 
     getTileAtXY(x: number, y: number) {
-      return find(this.tiles, {
-        x: x,
-        y: y,
-      });
+      return this.tiles.find(tile => tile.x == x && tile.y == y);
     },
 
     addEffectToTile(x: number, y: number, effect: EffectType) {
@@ -59,7 +45,7 @@ const createTileMap = (
 
       affectedTile.onCollide = () => {
         affectedTile.type = "ground";
-        affectedTile.color = "rgb(0, 255, 0)";
+        affectedTile.color = sample(livingTileColors);
         affectedTile.collidableWith = [];
         delete affectedTile.effect;
         doneColliding(affectedTile);

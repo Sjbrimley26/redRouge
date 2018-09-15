@@ -20,11 +20,11 @@ const Entity = ({
     ...redTile,
     x,
     y,
-    type: type,
-    name: name,
+    type,
+    name,
     movementListeners: new Map(),
     limitedMovementListeners: new Map(),
-    collidableWith: ["wall", "enemy", "trigger", "player"],
+    collidableWith: ["wall", "enemy", "trigger"],
 
     onCollide(tile) {
       if (tile.effect) {

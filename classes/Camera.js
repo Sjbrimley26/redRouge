@@ -2,9 +2,7 @@
 
 import { resizeCanvas } from "../canvas";
 import { MAP_HEIGHT, MAP_WIDTH, TILE_SIZE } from "../objects/map";
-import type { EntityType } from "../flowTypes";
-
-type ZoomLevels = "normal" | "zoomIn" | "zoomOut";
+import type { EntityType, ZoomLevels } from "../flowTypes";
 
 const Camera = () => {
   const camera = {

@@ -12,6 +12,9 @@ export type CameraType = {
   yMax: number,
   width: number,
   height: number,
+  trackPlayer: EntityType => CameraType | void,
+  resize: void => void,
+  setZoom: ZoomLevels => void,
 };
 
 export type SpriteType = {
@@ -29,7 +32,7 @@ export type EntityType = {
   isColliding: boolean,
   collidingWith: Object,
   onEndTurn: void => void,
-  addMovementListener: (string, (any) => void) => void,
+  addMovementListener: (string, (any) => any) => void,
 };
 
 export type FloorTileType = {
@@ -45,3 +48,5 @@ export type EffectType = {
   strength: number,
   duration: number,
 };
+
+export type ZoomLevels = "normal" | "zoomIn" | "zoomOut";

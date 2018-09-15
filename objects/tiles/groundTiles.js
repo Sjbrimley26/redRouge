@@ -4,6 +4,7 @@
 
 import Sprite from "../../classes/Sprite";
 import Tile from "../../classes/Tile";
+import find from "lodash/find";
 
 const defaultTile = {
   size: 64,
@@ -11,12 +12,19 @@ const defaultTile = {
   y: 0,
 };
 
-const groundTileColors = [
+export const groundTileColors = [
   "rgb(80, 255, 90)",
   "rgb(60, 100, 0)",
   "rgb(100, 200, 40)",
   "rgb(0, 255, 0)",
   "rgb(0, 0, 0)",
+];
+
+export const livingTileColors = [
+  "rgb(80, 255, 90)",
+  "rgb(60, 100, 0)",
+  "rgb(100, 200, 40)",
+  "rgb(0, 255, 0)",
 ];
 
 export const groundTiles: any = groundTileColors.map((color: string) => {
@@ -39,4 +47,12 @@ export const redTile = Tile(
     },
     {}
   )
+);
+
+export const deadTile = find(groundTiles, {
+  color: "rgb(0, 0, 0)",
+});
+
+export const livingTiles = groundTiles.filter(
+  tile => tile.color !== "rgb(0, 0, 0)"
 );
