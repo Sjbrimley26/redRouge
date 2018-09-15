@@ -5,6 +5,8 @@ export type CanvasType = {
   height: number,
 };
 
+export type ZoomLevels = "normal" | "zoomIn" | "zoomOut";
+
 export type CameraType = {
   x: number,
   y: number,
@@ -40,6 +42,7 @@ export type FloorTileType = {
   y: number,
   type: "ground" | "wall",
   onCollide: void => void,
+  color: string,
 };
 
 export type EffectType = {
@@ -48,5 +51,3 @@ export type EffectType = {
   strength: number,
   duration: number,
 };
-
-export type ZoomLevels = "normal" | "zoomIn" | "zoomOut";

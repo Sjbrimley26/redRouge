@@ -4,6 +4,7 @@ import { redTile } from "../objects/tiles";
 import { TILE_SIZE } from "../objects/map/config";
 import sample from "lodash/sample";
 import { triggerStatusEffect } from "../objects/statusEffects";
+import { get_new_id } from "../utilities";
 
 const Entity = ({
   x,
@@ -22,9 +23,10 @@ const Entity = ({
     y,
     type,
     name,
+    id: get_new_id(),
     movementListeners: new Map(),
     limitedMovementListeners: new Map(),
-    collidableWith: ["wall", "enemy", "trigger"],
+    collidableWith: ["wall", "enemy", "trigger", "player"],
 
     onCollide(tile) {
       if (tile.effect) {

@@ -69,6 +69,8 @@ window.onload = () => {
   render();
   startTurn();
 
+  console.log(player);
+
   gameMap.addEffectToTile(192, 128, {
     name: "poison mushroom",
     type: "poison",

@@ -7,6 +7,9 @@ const detectCollision = async quadtree => {
     quadtree.findObjects(obj, objX);
 
     for (let objY of obj) {
+      if (objX.id === objY.id) {
+        continue;
+      }
       if (
         (objX.isCollidableWith(objY) || objY.isCollidableWith(objX)) &&
         (objX.x === objY.x && objX.y === objY.y)

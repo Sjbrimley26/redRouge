@@ -1,13 +1,14 @@
+// @flow
 // https://gamedevelopment.tutsplus.com/tutorials/generate-random-cave-levels-using-cellular-automata--gamedev-9664
 
 import sample from "lodash/sample";
 import { deadTile, livingTiles, livingTileColors } from "../tiles";
-import { FloorTileType } from "../../flowTypes";
+import type { FloorTileType } from "../../flowTypes";
 import { TILE_SIZE } from "./config";
 
 const spawnTiles = (width, height, tile_size): FloorTileType[] => {
   let tiles = [];
-  const chanceToStartAlive = 0.44;
+  const chanceToStartAlive = 0.45;
   for (let i = 0; i < width; i += tile_size) {
     for (let j = 0; j < height; j += tile_size) {
       let tile;
@@ -55,6 +56,10 @@ const getNeighbors = (map, x, y) => {
   let neighbors = [];
   for (let i = -1; i < 2; i++) {
     for (let j = -1; j < 2; j++) {
+      if (i == 0 && j == 0) {
+        // exclude the tile in question
+        continue;
+      }
       let neighborX = x + i * TILE_SIZE;
       let neighborY = y + j * TILE_SIZE;
       let neighbor = map.find(t => {
@@ -73,14 +78,12 @@ const countLivingNeighbors = (
 ): number => {
   let count = 0;
   getNeighbors(map, x, y).forEach(neighbor => {
-    /*
     if (
       // include tiles past the edge of the map, this conditional is optional
       neighbor == undefined
     ) {
       count++;
     }
-    */
 
     if (neighbor !== undefined && neighbor.type !== "wall") {
       count++;
@@ -120,14 +123,16 @@ const floodFill = (
 const removeTilesOutsideFill = (
   map: FloorTileType[],
   fill: FloorTileType[]
-) => {
-  return map.map(tile => {
-    if (!fill.includes(tile)) {
-      tile.color = "rgb(0, 0, 0)";
-      tile.type = "wall";
+): FloorTileType[] => {
+  return map.map(
+    (tile: FloorTileType): FloorTileType => {
+      if (!fill.includes(tile)) {
+        tile.color = "rgb(0, 0, 0)";
+        tile.type = "wall";
+      }
+      return tile;
     }
-    return tile;
-  });
+  );
 };
 
 const getGroundPercentage = (map: FloorTileType[]): number => {
@@ -136,7 +141,12 @@ const getGroundPercentage = (map: FloorTileType[]): number => {
   return parseFloat((floorCount / total).toFixed(2));
 };
 
-export const generateTiles = (width, height, tile_size, iterations) => {
+export const generateTiles = (
+  width: number,
+  height: number,
+  tile_size: number,
+  iterations: number
+) => {
   let tiles = spawnTiles(width, height, tile_size);
   for (let i = 0; i < iterations; i++) {
     tiles = doSimulationStep(tiles);
