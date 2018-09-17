@@ -5,7 +5,8 @@ import { livingTileColors } from "../tiles";
 import { MAP_HEIGHT, MAP_WIDTH, TILE_SIZE } from "./config";
 import { doneColliding } from "../../logic";
 import type { FloorTileType, EffectType } from "../../flowTypes";
-import { generateTiles } from "./mapGenerator";
+import { generateTiles, getNeighbors } from "./mapGenerator";
+import getFOV from "./fov";
 
 const createTileMap = (
   width: number = MAP_WIDTH,
@@ -62,6 +63,18 @@ const createTileMap = (
         return tile;
       });
       this.triggerTiles = this.tiles.filter(isType("trigger"));
+    },
+
+    setVisibleTiles(player) {
+      const { x, y } = player;
+      map.tiles.forEach(tile => (tile.visibility = "hidden"));
+      const neighbors = getNeighbors(
+        map.tiles,
+        x,
+        y,
+        player.sightRadius
+      ).filter(tile => tile !== undefined);
+      getFOV(player, neighbors);
     },
   };
 

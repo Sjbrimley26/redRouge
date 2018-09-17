@@ -52,6 +52,7 @@ const camera: CameraType = Camera();
 gameObjects.set("player", (player: EntityType));
 
 player.addMovementListener("cameraTracker", camera.trackPlayer);
+player.addMovementListener("visibilityTracker", gameMap.setVisibleTiles);
 
 const renderGameObjects = () => {
   getCanvas("background")
@@ -68,9 +69,10 @@ window.onload = () => {
   camera.resize();
   render();
   startTurn();
+  gameMap.setVisibleTiles(player);
+  // console.log(player);
 
-  console.log(player);
-
+  /*
   gameMap.addEffectToTile(192, 128, {
     name: "poison mushroom",
     type: "poison",
@@ -84,6 +86,7 @@ window.onload = () => {
     duration: 5,
     strength: 5,
   });
+  */
 };
 
 window.addEventListener(
@@ -100,6 +103,7 @@ const render = () => {
 };
 
 const startTurn = () => {
+  console.log("NEW TURN!");
   const player: EntityType = { ...gameObjects.get("player") };
   player.onStartTurn();
 
@@ -130,6 +134,7 @@ const startTurn = () => {
       console.log(`You ran into a ${tempPlayer.collidingWith.type}`);
       tempPlayer.x = originX;
       tempPlayer.y = originY;
+      tempPlayer.onMove();
       gameObjects.set("player", tempPlayer);
       endTurn();
     } else {
@@ -141,11 +146,7 @@ const startTurn = () => {
 
   const endTurn = () => {
     document.removeEventListener("keydown", addKeydownMovement);
-    let tempPlayer: EntityType | void = gameObjects.get("player");
-    if (tempPlayer === undefined) {
-      // will literally never happen, but flow...
-      return;
-    }
+    let tempPlayer: EntityType = { ...gameObjects.get("player") };
     doneColliding(tempPlayer);
     tempPlayer.onEndTurn();
     gameObjects.set("player", tempPlayer);

@@ -14,6 +14,7 @@ const Camera = () => {
     yMax: 0,
     zoom: "normal",
     zoomFactor: 1,
+    playerCoords: { x: 0, y: 0 },
 
     relocate(x: number, y: number) {
       let inverseFactor = 1;
@@ -77,6 +78,7 @@ const Camera = () => {
     trackPlayer(player: EntityType) {
       // This one doesn't use 'this' because the context
       // gets messed up when used with the player.addMovementListener function
+      camera.playerCoords = { x: player.x, y: player.y };
       let x = player.x - camera.width / (2 * camera.zoomFactor);
       let y = player.y - camera.height / (2 * camera.zoomFactor);
 

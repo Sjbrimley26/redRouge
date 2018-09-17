@@ -25,10 +25,14 @@ const renderSprite = async (
     sprite.y >= camera.y &&
     sprite.y <= camera.yMax * 2
   ) {
-    let { size, x, y, color } = sprite;
+    let { size, x, y, color, visibility } = sprite;
 
     x -= camera.x;
     y -= camera.y;
+
+    if (visibility === "hidden") {
+      color = "rgb(0, 0, 0)";
+    }
 
     ctx.fillStyle = color;
     ctx.fillRect(x, y, size, size);

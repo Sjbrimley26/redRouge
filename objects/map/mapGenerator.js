@@ -35,7 +35,7 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
       if (nbs >= deathLimit) {
         newMap[index] = {
           ...newMap[index],
-          color: "rgb(0, 0, 0)",
+          color: "rgb(50, 50, 50)",
           type: "wall",
         };
       }
@@ -52,10 +52,10 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
   return newMap;
 };
 
-const getNeighbors = (map, x, y) => {
+export const getNeighbors = (map, x, y, distance = 1) => {
   let neighbors = [];
-  for (let i = -1; i < 2; i++) {
-    for (let j = -1; j < 2; j++) {
+  for (let i = -distance; i < distance + 1; i++) {
+    for (let j = -distance; j < distance + 1; j++) {
       if (i == 0 && j == 0) {
         // exclude the tile in question
         continue;
@@ -127,7 +127,7 @@ const removeTilesOutsideFill = (
   return map.map(
     (tile: FloorTileType): FloorTileType => {
       if (!fill.includes(tile)) {
-        tile.color = "rgb(0, 0, 0)";
+        tile.color = "rgb(50, 50, 50)";
         tile.type = "wall";
       }
       return tile;
@@ -137,7 +137,12 @@ const removeTilesOutsideFill = (
 
 const getGroundPercentage = (map: FloorTileType[]): number => {
   const total = map.length;
-  const floorCount = floodFill(map, { x: 64, y: 64 }).length;
+  const floorCount = map.reduce((count, tile) => {
+    if (tile.type == "ground") {
+      count++;
+    }
+    return count;
+  }, 0);
   return parseFloat((floorCount / total).toFixed(2));
 };
 
@@ -155,5 +160,10 @@ export const generateTiles = (
   while (getGroundPercentage(tiles) < 0.45) {
     tiles = generateTiles(width, height, tile_size, iterations);
   }
-  return tiles;
+  return tiles.filter(tile => tile !== undefined).map(tile => {
+    if (tile.type !== "wall") {
+      tile.isOpaque = false;
+    }
+    return tile;
+  });
 };

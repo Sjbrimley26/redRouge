@@ -27,6 +27,8 @@ const Entity = ({
     movementListeners: new Map(),
     limitedMovementListeners: new Map(),
     collidableWith: ["wall", "enemy", "trigger", "player"],
+    visibility: "hidden",
+    isOpaque: true,
 
     onCollide(tile) {
       if (tile.effect) {
