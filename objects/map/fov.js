@@ -1,3 +1,7 @@
+// @flow
+
+// http://journal.stuffwithstuff.com/2015/09/07/what-the-hero-sees/
+
 const getFOV = (player, tiles) => {
   const checkOctant = (player, tiles, octantZone) => {
     const line = ShadowLine();

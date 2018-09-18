@@ -52,7 +52,12 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
   return newMap;
 };
 
-export const getNeighbors = (map, x, y, distance = 1) => {
+export const getNeighbors = (
+  map: FloorTileType[],
+  x: number,
+  y: number,
+  distance: number = 1
+): FloorTileType[] => {
   let neighbors = [];
   for (let i = -distance; i < distance + 1; i++) {
     for (let j = -distance; j < distance + 1; j++) {
