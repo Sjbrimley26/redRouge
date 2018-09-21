@@ -8,7 +8,7 @@ import { TILE_SIZE } from "./config";
 
 const spawnTiles = (width, height, tile_size): FloorTileType[] => {
   let tiles = [];
-  const chanceToStartAlive = 0.8;
+  const chanceToStartAlive = 0.45;
   for (let i = 0; i < width; i += tile_size) {
     for (let j = 0; j < height; j += tile_size) {
       let tile;
@@ -36,22 +36,20 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
     let nbs = countLivingNeighbors(oldMap, tile.x, tile.y);
     if (oldMap[index].type === "ground") {
       if (nbs >= deathLimit) {
-        newMap[index] = {
-          ...newMap[index],
+        newMap[index] = Object.assign(newMap[index].getClone(), {
           type: "wall",
           color: "rgb(50, 50, 50)",
           isOpaque: true,
-        };
+        });
         // newMap[index] = wallTile(); is too slow
       }
     } else {
-      if (nbs >= birthLimit) {
-        newMap[index] = {
-          ...newMap[index],
+      if (nbs <= birthLimit) {
+        newMap[index] = Object.assign(newMap[index].getClone(), {
           type: "ground",
           color: sample(livingTileColors),
           isOpaque: false,
-        };
+        });
       }
     }
   });
@@ -89,12 +87,14 @@ const countLivingNeighbors = (
 ): number => {
   let count = 0;
   getNeighbors(map, x, y).forEach(neighbor => {
+    /*
     if (
       // include tiles past the edge of the map, this conditional is optional
       neighbor == undefined
     ) {
       count++;
     }
+    */
     if (neighbor !== undefined && neighbor.type !== "wall") {
       count++;
     }
@@ -139,6 +139,7 @@ const removeTilesOutsideFill = (
       if (!fill.includes(tile)) {
         tile.color = "rgb(50, 50, 50)";
         tile.type = "wall";
+        tile.isOpaque = true;
       }
       return tile;
     }
