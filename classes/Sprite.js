@@ -3,36 +3,37 @@ const Sprite = function({
   x,
   y,
   color,
+  type = "sprite",
   collidableWith = [],
-  type,
-  isOpaque,
+  isOpaque = false,
 }) {
-  this.size = size;
-  this.height = size;
-  this.width = size;
-  this.x = x;
-  this.y = y;
-  this.color = color;
-  this.collidableWith = collidableWith;
-  this.type = type;
-  this.collidingWith = {};
-  this.isOpaque = isOpaque ? isOpaque : false;
+  return Object.assign(Object.create(spriteProto), {
+    x,
+    y,
+    type,
+    color,
+    size,
+    height: size,
+    width: size,
+    collidableWith,
+    isOpaque,
+  });
 };
 
-Sprite.prototype.isCollidableWith = function(object) {
-  return this.collidableWith.some(type => type === object.type);
-};
+const spriteProto = {
+  isCollidableWith(object) {
+    return this.collidableWith.some(type => type === object.type);
+  },
 
-Sprite.prototype.onCollide = function() {};
+  onCollide() {},
 
-Sprite.prototype.type = "sprite";
+  isColliding: false,
 
-Sprite.prototype.isOpaque = false;
+  getClone() {
+    return Object.create(this);
+  },
 
-Sprite.prototype.isColliding = false;
-
-Sprite.prototype.getClone = function() {
-  return Object.create(this);
+  collidingWith: {},
 };
 
 export default Sprite;

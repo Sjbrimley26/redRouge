@@ -19,19 +19,18 @@ export const livingTileColors = [
   "rgb(100, 100, 0)",
 ];
 
-export const redTile = new Sprite({ ...defaultTile, color: "rgb(255, 0, 0)" });
+export const redTile = Sprite({ ...defaultTile, color: "rgb(255, 0, 0)" });
 
 export const floorTile = function() {
-  return new Sprite({
+  return Sprite({
     ...defaultTile,
     color: sample(livingTileColors),
     type: "ground",
-    isOpaque: false,
   });
 };
 
 export const wallTile = function() {
-  return new Sprite({
+  return Sprite({
     ...defaultTile,
     color: "rgb(50, 50, 50)",
     type: "wall",
