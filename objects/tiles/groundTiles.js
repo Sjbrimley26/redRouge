@@ -3,8 +3,7 @@
 "use strict";
 
 import Sprite from "../../classes/Sprite";
-import Tile from "../../classes/Tile";
-import find from "lodash/find";
+import sample from "lodash/sample";
 
 const defaultTile = {
   size: 64,
@@ -14,46 +13,28 @@ const defaultTile = {
   isOpaque: false,
 };
 
-export const groundTileColors = [
-  "rgb(80, 100, 0)",
-  "rgb(100, 100, 40)",
-  "rgb(100, 100, 0)",
-  "rgb(50, 50, 50)",
-];
-
 export const livingTileColors = [
   "rgb(80, 100, 0)",
   "rgb(100, 100, 40)",
   "rgb(100, 100, 0)",
 ];
 
-export const groundTiles: any = groundTileColors.map((color: string) => {
-  return Tile(
-    Sprite({
-      ...defaultTile,
-      color,
-    }),
-    {
-      type: color == "rgb(50, 50, 50)" ? "wall" : "ground",
-      isOpaque: color == "rgb(50, 50, 50)" ? true : false,
-    }
-  );
-});
+export const redTile = new Sprite({ ...defaultTile, color: "rgb(255, 0, 0)" });
 
-export const redTile = Tile(
-  Sprite(
-    {
-      ...defaultTile,
-      color: "rgb(255, 0, 0)",
-    },
-    {}
-  )
-);
+export const floorTile = function() {
+  return new Sprite({
+    ...defaultTile,
+    color: sample(livingTileColors),
+    type: "ground",
+    isOpaque: false,
+  });
+};
 
-export const deadTile = find(groundTiles, {
-  color: "rgb(50, 50, 50)",
-});
-
-export const livingTiles = groundTiles.filter(
-  tile => tile.color !== "rgb(50, 50, 50)"
-);
+export const wallTile = function() {
+  return new Sprite({
+    ...defaultTile,
+    color: "rgb(50, 50, 50)",
+    type: "wall",
+    isOpaque: true,
+  });
+};

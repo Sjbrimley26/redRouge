@@ -70,7 +70,6 @@ window.onload = () => {
   render();
   startTurn();
   gameMap.setVisibleTiles(player);
-  // console.log(player);
 
   /*
   gameMap.addEffectToTile(192, 128, {
@@ -103,8 +102,7 @@ const render = () => {
 };
 
 const startTurn = () => {
-  console.log("NEW TURN!");
-  const player: EntityType = { ...gameObjects.get("player") };
+  const player: EntityType = gameObjects.get("player");
   player.onStartTurn();
 
   const originX = player.x;
@@ -116,7 +114,7 @@ const startTurn = () => {
     .forEach(tile => quadtree.insert(tile));
 
   const addKeydownMovement = (e: any): void => {
-    const mover: EntityType = { ...gameObjects.get("player") };
+    const mover: EntityType = gameObjects.get("player");
 
     triggerKeyAction(e.keyCode, mover);
     relocateIfPastBorder(mover);
@@ -130,7 +128,7 @@ const startTurn = () => {
     detectCollision(quadtree);
 
     if (checkIfPlayerHitWall(gameObjects.get("player"))) {
-      let tempPlayer: EntityType = { ...gameObjects.get("player") };
+      let tempPlayer: EntityType = gameObjects.get("player");
       console.log(`You ran into a ${tempPlayer.collidingWith.type}`);
       tempPlayer.x = originX;
       tempPlayer.y = originY;
@@ -146,7 +144,7 @@ const startTurn = () => {
 
   const endTurn = () => {
     document.removeEventListener("keydown", addKeydownMovement);
-    let tempPlayer: EntityType = { ...gameObjects.get("player") };
+    let tempPlayer: EntityType = gameObjects.get("player");
     doneColliding(tempPlayer);
     tempPlayer.onEndTurn();
     gameObjects.set("player", tempPlayer);

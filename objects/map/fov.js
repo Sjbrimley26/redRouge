@@ -2,7 +2,9 @@
 
 // http://journal.stuffwithstuff.com/2015/09/07/what-the-hero-sees/
 
-const getFOV = (player, tiles) => {
+import type { EntityType, FloorTileType } from "../../flowTypes";
+
+const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
   const checkOctant = (player, tiles, octantZone) => {
     const line = ShadowLine();
     let fullShadow = false;
@@ -34,7 +36,7 @@ const getFOV = (player, tiles) => {
     }
   };
 
-  const transformOctant = (row, col, octant) => {
+  const transformOctant = (row, col, octant): number[] => {
     switch (octant) {
       case 0:
         return [col, -row];

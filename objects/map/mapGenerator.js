@@ -2,20 +2,20 @@
 // https://gamedevelopment.tutsplus.com/tutorials/generate-random-cave-levels-using-cellular-automata--gamedev-9664
 
 import sample from "lodash/sample";
-import { deadTile, livingTiles, livingTileColors } from "../tiles";
+import { wallTile, floorTile, livingTileColors } from "../tiles";
 import type { FloorTileType } from "../../flowTypes";
 import { TILE_SIZE } from "./config";
 
 const spawnTiles = (width, height, tile_size): FloorTileType[] => {
   let tiles = [];
-  const chanceToStartAlive = 0.45;
+  const chanceToStartAlive = 0.8;
   for (let i = 0; i < width; i += tile_size) {
     for (let j = 0; j < height; j += tile_size) {
       let tile;
       if (Math.random() < chanceToStartAlive) {
-        tile = { ...sample(livingTiles) };
+        tile = floorTile();
       } else {
-        tile = { ...deadTile };
+        tile = wallTile();
       }
       tile.x = i;
       tile.y = j;
@@ -29,22 +29,28 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
   const deathLimit = 3;
   const birthLimit = 4;
   let newMap = [...oldMap];
+  // This isn't working, because each tile needs to be new
+  // but spreading just adds the references.
+  // Using new constructed tiles is too slow.
   oldMap.forEach((tile, index) => {
     let nbs = countLivingNeighbors(oldMap, tile.x, tile.y);
     if (oldMap[index].type === "ground") {
       if (nbs >= deathLimit) {
         newMap[index] = {
           ...newMap[index],
-          color: "rgb(50, 50, 50)",
           type: "wall",
+          color: "rgb(50, 50, 50)",
+          isOpaque: true,
         };
+        // newMap[index] = wallTile(); is too slow
       }
     } else {
-      if (nbs <= birthLimit) {
+      if (nbs >= birthLimit) {
         newMap[index] = {
           ...newMap[index],
-          color: sample(livingTileColors),
           type: "ground",
+          color: sample(livingTileColors),
+          isOpaque: false,
         };
       }
     }
@@ -57,7 +63,7 @@ export const getNeighbors = (
   x: number,
   y: number,
   distance: number = 1
-): FloorTileType[] => {
+): any[] => {
   let neighbors = [];
   for (let i = -distance; i < distance + 1; i++) {
     for (let j = -distance; j < distance + 1; j++) {
@@ -89,7 +95,6 @@ const countLivingNeighbors = (
     ) {
       count++;
     }
-
     if (neighbor !== undefined && neighbor.type !== "wall") {
       count++;
     }

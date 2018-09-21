@@ -13,7 +13,7 @@ const createTileMap = (
   height: number = MAP_HEIGHT,
   tile_size: number = TILE_SIZE
 ) => {
-  let tiles = generateTiles(width, height, tile_size, 6);
+  let tiles = generateTiles(width, height, tile_size, 4);
 
   const isType = (type: string) => (tile: FloorTileType): boolean => {
     return tile.type === type;

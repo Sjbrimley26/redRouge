@@ -1,45 +1,62 @@
 // @flow
 
-import { redTile } from "../objects/tiles";
 import { TILE_SIZE } from "../objects/map/config";
 import sample from "lodash/sample";
 import { triggerStatusEffect } from "../objects/statusEffects";
 import { get_new_id } from "../utilities";
 
-const entity = {
-  ...redTile,
-  collidableWith: ["wall", "enemy", "trigger", "player"],
-  visibility: "hidden",
-  isOpaque: true,
+const Entity = function(
+  sprite,
+  x,
+  y,
+  name,
+  type,
+  id = get_new_id(),
+  movementListeners: any = new Map(),
+  limitedMovementListeners: any = new Map()
+) {
+  this.movementListeners = movementListeners;
+  this.limitedMovementListeners = limitedMovementListeners;
+  this.x = x;
+  this.y = y;
+  this.id = id;
+  this.size = sprite.size;
+  this.color = sprite.color;
 };
 
-entity.prototype.onCollide = (tile) => {
+Entity.prototype.collidableWith = ["wall", "enemy", "trigger", "player"];
+
+Entity.prototype.visibility = "hidden";
+
+Entity.prototype.isOpaque = true;
+
+Entity.prototype.onCollide = function(tile) {
   if (tile.effect) {
     triggerStatusEffect(this, tile.effect);
   }
 };
 
-entity.prototype.moveUp = () => {
+Entity.prototype.moveUp = function() {
   this.y -= TILE_SIZE;
   return this;
 };
 
-entity.prototype.moveDown = () => {
+Entity.prototype.moveDown = function() {
   this.y += TILE_SIZE;
   return this;
 };
 
-entity.prototype.moveRight = () => {
+Entity.prototype.moveRight = function() {
   this.x += TILE_SIZE;
   return this;
 };
 
-entity.prototype.moveLeft = () => {
+Entity.prototype.moveLeft = function() {
   this.x -= TILE_SIZE;
   return this;
 };
 
-entity.prototype.addMovementListener = (tag, fn, turnLimit = 0) => {
+Entity.prototype.addMovementListener = function(tag, fn, turnLimit = 0) {
   if (this.movementListeners.has(tag)) {
     if (this.limitedMovementListeners.has(tag)) {
       // So the duration of the original effect is extended,
@@ -57,13 +74,13 @@ entity.prototype.addMovementListener = (tag, fn, turnLimit = 0) => {
   }
 };
 
-entity.prototype.removeMovementListener = tag => {
+Entity.prototype.removeMovementListener = function(tag) {
   if (this.movementListeners.has(tag)) {
     this.movementListeners.delete(tag);
   }
 };
 
-entity.prototype.onMove = () => {
+Entity.prototype.onMove = function() {
   for (let fn of this.movementListeners.values()) {
     fn.call(null, this);
   }
@@ -88,30 +105,12 @@ entity.prototype.onMove = () => {
   }
 };
 
-entity.prototype.onStartTurn = () => {};
+Entity.prototype.onStartTurn = function() {};
 
-entity.prototype.onEndTurn = () => {};
+Entity.prototype.onEndTurn = function() {};
 
-const Entity = ({
-  x,
-  y,
-  name,
-  type,
-}: {
-  x: number,
-  y: number,
-  name: string,
-  type: string,
-}) => {
-  return Object.create(entity, {
-    x,
-    y,
-    name,
-    type,
-    id: get_new_id(),
-    movementListeners: new Map(),
-    limitedMovementListeners: new Map(),
-  });
+Entity.prototype.isCollidableWith = function(obj) {
+  return this.collidableWith.some(type => type === obj.type);
 };
 
 export default Entity;
