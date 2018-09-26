@@ -17,7 +17,9 @@ import {
   MAP_WIDTH,
 } from "../objects/map";
 
-import { QuadTree, Player, Camera } from "../classes";
+import { QuadTree, Camera } from "../classes";
+
+import Player from "../objects/entities/Player";
 
 import {
   getCanvas,
@@ -33,6 +35,7 @@ import {
   triggerKeyAction,
   doneColliding,
   checkIfPlayerHitWall,
+  getOrThrow,
 } from "../logic";
 
 const gameMap = createTileMap();
@@ -49,7 +52,7 @@ const quadtree = QuadTree(0, {
 const player: EntityType = Player();
 const camera: CameraType = Camera();
 
-gameObjects.set("player", (player: EntityType));
+gameObjects.set("player", player);
 
 player.addMovementListener("cameraTracker", camera.trackPlayer);
 player.addMovementListener("visibilityTracker", gameMap.setVisibleTiles);
@@ -69,10 +72,9 @@ window.onload = () => {
   camera.resize();
   render();
   startTurn();
-  gameMap.setVisibleTiles(player);
   // console.log(player);
+  gameMap.setVisibleTiles(player);
 
-  /*
   gameMap.addEffectToTile(192, 128, {
     name: "poison mushroom",
     type: "poison",
@@ -86,7 +88,6 @@ window.onload = () => {
     duration: 5,
     strength: 5,
   });
-  */
 };
 
 window.addEventListener(
@@ -103,8 +104,7 @@ const render = () => {
 };
 
 const startTurn = () => {
-  console.log("NEW TURN!");
-  const player: EntityType = { ...gameObjects.get("player") };
+  const player: EntityType = getOrThrow(gameObjects.get("player"));
   player.onStartTurn();
 
   const originX = player.x;
@@ -116,7 +116,7 @@ const startTurn = () => {
     .forEach(tile => quadtree.insert(tile));
 
   const addKeydownMovement = (e: any): void => {
-    const mover: EntityType = { ...gameObjects.get("player") };
+    const mover: EntityType = getOrThrow(gameObjects.get("player"));
 
     triggerKeyAction(e.keyCode, mover);
     relocateIfPastBorder(mover);
@@ -130,7 +130,7 @@ const startTurn = () => {
     detectCollision(quadtree);
 
     if (checkIfPlayerHitWall(gameObjects.get("player"))) {
-      let tempPlayer: EntityType = { ...gameObjects.get("player") };
+      let tempPlayer: EntityType = getOrThrow(gameObjects.get("player"));
       console.log(`You ran into a ${tempPlayer.collidingWith.type}`);
       tempPlayer.x = originX;
       tempPlayer.y = originY;
@@ -146,7 +146,7 @@ const startTurn = () => {
 
   const endTurn = () => {
     document.removeEventListener("keydown", addKeydownMovement);
-    let tempPlayer: EntityType = { ...gameObjects.get("player") };
+    let tempPlayer: EntityType = getOrThrow(gameObjects.get("player"));
     doneColliding(tempPlayer);
     tempPlayer.onEndTurn();
     gameObjects.set("player", tempPlayer);

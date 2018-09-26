@@ -25,13 +25,22 @@ const renderSprite = async (
     sprite.y >= camera.y &&
     sprite.y <= camera.yMax * 2
   ) {
-    let { size, x, y, color, visibility } = sprite;
+    let { size, x, y, color, visible, seen } = sprite;
 
     x -= camera.x;
     y -= camera.y;
 
-    if (visibility === "hidden") {
+    if (!visible && !seen) {
       color = "rgb(0, 0, 0)";
+    } else if (!visible && seen) {
+      let numString = color.slice(4, color.length - 1);
+      let nums = numString
+        .split(",")
+        .map(item => parseFloat(item))
+        .map(number => {
+          return number - 75 >= 0 ? number - 75 : 0;
+        });
+      color = "rgb(" + nums.join(",") + ")";
     }
 
     ctx.fillStyle = color;

@@ -1,15 +1,15 @@
 import {
-  groundTiles,
+  floorTile,
   redTile,
-  deadTile,
+  wallTile,
   livingTiles,
   livingTileColors,
 } from "./groundTiles";
 
 module.exports = {
-  groundTiles,
+  wallTile,
   redTile,
-  deadTile,
+  floorTile,
   livingTiles,
   livingTileColors,
 };

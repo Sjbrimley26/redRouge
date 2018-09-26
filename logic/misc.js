@@ -2,6 +2,9 @@ import { MAP_HEIGHT, MAP_WIDTH, TILE_SIZE } from "../objects/map/config";
 import { EntityType } from "../flowTypes";
 
 const relocateIfPastBorder = player => {
+  let originalX = player.x;
+  let originalY = player.y;
+
   if (player.x < 0) {
     player.x = 0;
   }
@@ -16,6 +19,10 @@ const relocateIfPastBorder = player => {
 
   if (player.y > MAP_HEIGHT - TILE_SIZE) {
     player.y = MAP_HEIGHT - TILE_SIZE;
+  }
+
+  if (player.y !== originalY || player.x !== originalX) {
+    player.onMove();
   }
 };
 
@@ -36,8 +43,16 @@ const checkIfPlayerHitWall = (player: EntityType | void) => {
   }
 };
 
+const getOrThrow = player => {
+  if (player === undefined) {
+    throw new Error("Player should never be undefined");
+  }
+  return player;
+};
+
 module.exports = {
   relocateIfPastBorder,
   doneColliding,
   checkIfPlayerHitWall,
+  getOrThrow,
 };

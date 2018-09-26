@@ -24,6 +24,7 @@ export type SpriteType = {
   x: number,
   y: number,
   color: string,
+  visible: boolean,
 };
 
 export type EntityType = {
@@ -35,14 +36,19 @@ export type EntityType = {
   collidingWith: Object,
   onEndTurn: void => void,
   addMovementListener: (string, (any) => any) => void,
+  sightRadius: number,
+  onMove: void => void,
 };
 
 export type FloorTileType = {
   x: number,
   y: number,
-  type: "ground" | "wall",
+  type: "ground" | "wall" | "trigger",
   onCollide: void => void,
   color: string,
+  visible: boolean,
+  isOpaque: boolean,
+  getClone: void => FloorTileType,
 };
 
 export type EffectType = {

@@ -1,4 +1,10 @@
-const getFOV = (player, tiles) => {
+// @flow
+
+// http://journal.stuffwithstuff.com/2015/09/07/what-the-hero-sees/
+
+import type { EntityType, FloorTileType } from "../../flowTypes";
+
+const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
   const checkOctant = (player, tiles, octantZone) => {
     const line = ShadowLine();
     let fullShadow = false;
@@ -14,23 +20,26 @@ const getFOV = (player, tiles) => {
         if (foundTile === undefined) {
           continue;
         }
-        let visibility;
+        let visible;
         if (fullShadow) {
-          visibility = "hidden";
+          visible = false;
         } else {
           let projection = projectTile(row, col);
-          visibility = line.isInShadow(projection) ? "hidden" : "visible";
-          if (visibility == "visible" && foundTile.isOpaque) {
+          visible = line.isInShadow(projection) ? false : true;
+          if (visible && foundTile.isOpaque) {
             line.add(projection);
             fullShadow = line.isFullShadow();
           }
         }
-        foundTile.visibility = visibility;
+        foundTile.visible = visible;
+        if (visible) {
+          foundTile.seen = true;
+        }
       }
     }
   };
 
-  const transformOctant = (row, col, octant) => {
+  const transformOctant = (row, col, octant): number[] => {
     switch (octant) {
       case 0:
         return [col, -row];
@@ -48,6 +57,8 @@ const getFOV = (player, tiles) => {
         return [-row, -col];
       case 7:
         return [-col, -row];
+      default:
+        return [col, -row];
     }
   };
 
