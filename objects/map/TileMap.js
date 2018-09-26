@@ -22,12 +22,7 @@ const createTileMap = (
   const map = {
     groundTiles: tiles.filter(isType("ground")),
 
-    wallTiles: tiles.filter(isType("wall")).map(
-      (tile: FloorTileType): FloorTileType => {
-        tile.onCollide = (): void => doneColliding(tile);
-        return tile;
-      }
-    ),
+    wallTiles: tiles.filter(isType("wall")),
 
     triggerTiles: tiles.filter(isType("trigger")),
 
@@ -59,22 +54,14 @@ const createTileMap = (
 
     updateTiles() {
       this.groundTiles = this.tiles.filter(isType("ground"));
-      this.wallTiles = this.tiles.filter(isType("wall")).map(tile => {
-        tile.onCollide = () => doneColliding(tile);
-        return tile;
-      });
+      this.wallTiles = this.tiles.filter(isType("wall"));
       this.triggerTiles = this.tiles.filter(isType("trigger"));
     },
 
     setVisibleTiles(player: EntityType) {
       const { x, y } = player;
       map.tiles.forEach((tile: FloorTileType) => (tile.visible = false));
-      const neighbors = getNeighbors(
-        map.tiles,
-        x,
-        y,
-        player.sightRadius
-      ).filter(tile => tile !== undefined);
+      const neighbors = getNeighbors(map.tiles, x, y, player.sightRadius);
       getFOV(player, neighbors);
     },
   };

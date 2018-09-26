@@ -194,9 +194,6 @@ const removeTilesOutsideFill = (
 const getGroundPercentage = (map: FloorTileType[]): number => {
   const total = map.length;
   const floorCount = map.reduce((count, tile) => {
-    if (tile === undefined) {
-      console.log(map);
-    }
     if (tile.type == "ground") {
       count++;
     }

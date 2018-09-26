@@ -32,7 +32,7 @@ const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
           }
         }
         foundTile.visible = visible;
-        if (visible) {
+        if (visible && foundTile.hasOwnProperty("seen")) {
           foundTile.seen = true;
         }
       }

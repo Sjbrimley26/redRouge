@@ -4,6 +4,7 @@ import { triggerStatusEffect } from "../statusEffects";
 import { TILE_SIZE } from "../map/config";
 import sample from "lodash/sample";
 import { get_new_id } from "../../utilities";
+import { doneColliding } from "../../logic";
 
 export const clonable = {
   getClone() {
@@ -16,7 +17,9 @@ export const collidable = {
     return this.collidableWith.some(type => type === object.type);
   },
 
-  onCollide() {},
+  onCollide() {
+    doneColliding(this);
+  },
 
   isColliding: false,
 

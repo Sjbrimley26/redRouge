@@ -38,7 +38,7 @@ const renderSprite = async (
         .split(",")
         .map(item => parseFloat(item))
         .map(number => {
-          return number - 75 >= 0 ? number - 75 : 0;
+          return number - 60 >= 0 ? number - 60 : 0;
         });
       color = "rgb(" + nums.join(",") + ")";
     }
