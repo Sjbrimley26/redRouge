@@ -43,8 +43,16 @@ const checkIfPlayerHitWall = (player: EntityType | void) => {
   }
 };
 
+const getOrThrow = player => {
+  if (player === undefined) {
+    throw new Error("Player should never be undefined");
+  }
+  return player;
+};
+
 module.exports = {
   relocateIfPastBorder,
   doneColliding,
   checkIfPlayerHitWall,
+  getOrThrow,
 };

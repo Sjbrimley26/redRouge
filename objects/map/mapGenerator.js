@@ -4,11 +4,16 @@
 import sample from "lodash/sample";
 import { wallTile, floorTile, livingTileColors } from "../tiles";
 import type { FloorTileType } from "../../flowTypes";
-import { TILE_SIZE } from "./config";
+import { TILE_SIZE, MAP_HEIGHT, MAP_WIDTH } from "./config";
+import { doneColliding } from "../../logic";
+
+const getTileAtXY = (x, y) => tile => {
+  return tile.x === x && tile.y === y;
+};
 
 const spawnTiles = (width, height, tile_size): FloorTileType[] => {
   let tiles = [];
-  const chanceToStartAlive = 0.45;
+  const chanceToStartAlive = 0.46;
   for (let i = 0; i < width; i += tile_size) {
     for (let j = 0; j < height; j += tile_size) {
       let tile;
@@ -28,31 +33,62 @@ const spawnTiles = (width, height, tile_size): FloorTileType[] => {
 const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
   const deathLimit = 3;
   const birthLimit = 4;
-  let newMap = [...oldMap];
-  // This isn't working, because each tile needs to be new
-  // but spreading just adds the references.
-  // Using new constructed tiles is too slow.
-  oldMap.forEach((tile, index) => {
+  let newMap = [];
+
+  const simulate = (tile, index): void => {
     let nbs = countLivingNeighbors(oldMap, tile.x, tile.y);
     if (oldMap[index].type === "ground") {
       if (nbs >= deathLimit) {
-        newMap[index] = Object.assign(newMap[index].getClone(), {
+        newMap[index] = {
+          ...oldMap[index],
           type: "wall",
           color: "rgb(50, 50, 50)",
           isOpaque: true,
-        });
+        };
         // newMap[index] = wallTile(); is too slow
+      } else {
+        newMap[index] = { ...oldMap[index] };
       }
     } else {
       if (nbs <= birthLimit) {
-        newMap[index] = Object.assign(newMap[index].getClone(), {
+        newMap[index] = {
+          ...oldMap[index],
           type: "ground",
           color: sample(livingTileColors),
           isOpaque: false,
-        });
+        };
+      } else {
+        newMap[index] = { ...oldMap[index] };
       }
     }
-  });
+  };
+
+  oldMap.forEach(simulate);
+  return newMap;
+};
+
+const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
+  const treasureLimit = 3;
+  let newMap = [...oldMap];
+
+  const place = (tile, index): void => {
+    let nbs = countLivingNeighbors(oldMap, tile.x, tile.y);
+    if (tile.type === "ground" && nbs === treasureLimit) {
+      newMap[index] = {
+        ...newMap[index],
+        type: "trigger",
+        color: "rgb(255, 200, 0)",
+        isOpaque: true,
+        collidableWith: ["player"],
+        onCollide() {
+          console.log("You found some gold!");
+          doneColliding(this);
+        },
+      };
+    }
+  };
+
+  oldMap.forEach(place);
   return newMap;
 };
 
@@ -61,7 +97,7 @@ export const getNeighbors = (
   x: number,
   y: number,
   distance: number = 1
-): any[] => {
+): FloorTileType[] => {
   let neighbors = [];
   for (let i = -distance; i < distance + 1; i++) {
     for (let j = -distance; j < distance + 1; j++) {
@@ -71,9 +107,17 @@ export const getNeighbors = (
       }
       let neighborX = x + i * TILE_SIZE;
       let neighborY = y + j * TILE_SIZE;
-      let neighbor = map.find(t => {
-        return t.x == neighborX && t.y == neighborY;
-      });
+
+      if (
+        neighborX < 0 ||
+        neighborY < 0 ||
+        neighborX >= MAP_WIDTH ||
+        neighborY >= MAP_HEIGHT
+      ) {
+        continue;
+      }
+
+      let neighbor = map.find(getTileAtXY(neighborX, neighborY));
       neighbors.push(neighbor);
     }
   }
@@ -95,7 +139,7 @@ const countLivingNeighbors = (
       count++;
     }
     */
-    if (neighbor !== undefined && neighbor.type !== "wall") {
+    if (neighbor.type !== "wall") {
       count++;
     }
   });
@@ -108,22 +152,20 @@ const floodFill = (
   tile,
   fill = new Set(),
   alreadyChecked = []
-) => {
+): FloorTileType[] => {
   const { x, y } = tile;
-  alreadyChecked.push(
-    map.indexOf(
-      map.find(t => {
-        return t.x == x && t.y == y;
-      })
-    )
-  );
+  alreadyChecked.push([x, y]);
   getNeighbors(map, x, y).forEach(neighbor => {
-    if (neighbor !== undefined && neighbor.type !== "wall") {
+    if (neighbor.type !== "wall") {
       fill.add(neighbor);
     }
   });
   fill.forEach(neighbor => {
-    if (!alreadyChecked.includes(map.indexOf(neighbor))) {
+    if (
+      alreadyChecked.some(([x, y]) => {
+        return neighbor.x === x && neighbor.y === y;
+      }) === false
+    ) {
       floodFill(map, neighbor, fill, alreadyChecked);
     }
   });
@@ -134,6 +176,9 @@ const removeTilesOutsideFill = (
   map: FloorTileType[],
   fill: FloorTileType[]
 ): FloorTileType[] => {
+  // this is kinda cool if you do the console, it shows how many times the
+  // map generator had to reset
+  // console.log(fill);
   return map.map(
     (tile: FloorTileType): FloorTileType => {
       if (!fill.includes(tile)) {
@@ -149,6 +194,9 @@ const removeTilesOutsideFill = (
 const getGroundPercentage = (map: FloorTileType[]): number => {
   const total = map.length;
   const floorCount = map.reduce((count, tile) => {
+    if (tile === undefined) {
+      console.log(map);
+    }
     if (tile.type == "ground") {
       count++;
     }
@@ -162,7 +210,7 @@ export const generateTiles = (
   height: number,
   tile_size: number,
   iterations: number
-) => {
+): FloorTileType[] => {
   let tiles = spawnTiles(width, height, tile_size);
   for (let i = 0; i < iterations; i++) {
     tiles = doSimulationStep(tiles);
@@ -171,10 +219,6 @@ export const generateTiles = (
   while (getGroundPercentage(tiles) < 0.45) {
     tiles = generateTiles(width, height, tile_size, iterations);
   }
-  return tiles.filter(tile => tile !== undefined).map(tile => {
-    if (tile.type !== "wall") {
-      tile.isOpaque = false;
-    }
-    return tile;
-  });
+  tiles = addTreasure(tiles);
+  return tiles;
 };

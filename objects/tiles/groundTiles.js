@@ -2,14 +2,14 @@
 
 "use strict";
 
-import Sprite from "../../classes/Sprite";
+import Tile from "../entities/Tile";
 import sample from "lodash/sample";
 
 const defaultTile = {
   size: 64,
   x: 0,
   y: 0,
-  visibility: "hidden",
+  visible: false,
   isOpaque: false,
 };
 
@@ -19,10 +19,8 @@ export const livingTileColors = [
   "rgb(100, 100, 0)",
 ];
 
-export const redTile = Sprite({ ...defaultTile, color: "rgb(255, 0, 0)" });
-
 export const floorTile = function() {
-  return Sprite({
+  return Tile({
     ...defaultTile,
     color: sample(livingTileColors),
     type: "ground",
@@ -30,7 +28,7 @@ export const floorTile = function() {
 };
 
 export const wallTile = function() {
-  return Sprite({
+  return Tile({
     ...defaultTile,
     color: "rgb(50, 50, 50)",
     type: "wall",

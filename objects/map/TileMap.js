@@ -48,6 +48,7 @@ const createTileMap = (
         affectedTile.type = "ground";
         affectedTile.color = sample(livingTileColors);
         affectedTile.collidableWith = [];
+        affectedTile.isOpaque = false;
         delete affectedTile.effect;
         doneColliding(affectedTile);
         map.updateTiles();
@@ -67,7 +68,7 @@ const createTileMap = (
 
     setVisibleTiles(player: EntityType) {
       const { x, y } = player;
-      map.tiles.forEach((tile: FloorTileType) => (tile.visibility = "hidden"));
+      map.tiles.forEach((tile: FloorTileType) => (tile.visible = false));
       const neighbors = getNeighbors(
         map.tiles,
         x,

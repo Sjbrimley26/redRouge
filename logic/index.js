@@ -4,6 +4,7 @@ import {
   relocateIfPastBorder,
   doneColliding,
   checkIfPlayerHitWall,
+  getOrThrow,
 } from "./misc";
 
 module.exports = {
@@ -12,4 +13,5 @@ module.exports = {
   triggerKeyAction,
   doneColliding,
   checkIfPlayerHitWall,
+  getOrThrow,
 };

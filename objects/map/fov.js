@@ -20,18 +20,21 @@ const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
         if (foundTile === undefined) {
           continue;
         }
-        let visibility;
+        let visible;
         if (fullShadow) {
-          visibility = "hidden";
+          visible = false;
         } else {
           let projection = projectTile(row, col);
-          visibility = line.isInShadow(projection) ? "hidden" : "visible";
-          if (visibility == "visible" && foundTile.isOpaque) {
+          visible = line.isInShadow(projection) ? false : true;
+          if (visible && foundTile.isOpaque) {
             line.add(projection);
             fullShadow = line.isFullShadow();
           }
         }
-        foundTile.visibility = visibility;
+        foundTile.visible = visible;
+        if (visible) {
+          foundTile.seen = true;
+        }
       }
     }
   };
@@ -54,6 +57,8 @@ const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
         return [-row, -col];
       case 7:
         return [-col, -row];
+      default:
+        return [col, -row];
     }
   };
 
