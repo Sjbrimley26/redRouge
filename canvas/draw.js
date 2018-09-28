@@ -33,6 +33,9 @@ const renderSprite = async (
     if (!visible && !seen) {
       color = "rgb(0, 0, 0)";
     } else if (!visible && seen) {
+      if (color === undefined) {
+        console.log(sprite);
+      }
       let numString = color.slice(4, color.length - 1);
       let nums = numString
         .split(",")

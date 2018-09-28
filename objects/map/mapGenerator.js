@@ -5,7 +5,7 @@ import sample from "lodash/sample";
 import { wallTile, floorTile, livingTileColors } from "../tiles";
 import type { FloorTileType } from "../../flowTypes";
 import { TILE_SIZE, MAP_HEIGHT, MAP_WIDTH } from "./config";
-import { doneColliding } from "../../logic";
+import { get_random_number } from "../../utilities";
 
 const getTileAtXY = (x, y) => tile => {
   return tile.x === x && tile.y === y;
@@ -80,9 +80,13 @@ const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
         color: "rgb(255, 200, 0)",
         isOpaque: true,
         collidableWith: ["player"],
-        onCollide() {
-          console.log("You found some gold!");
-          doneColliding(this);
+        onCollide(player) {
+          let amount = get_random_number(5, 26);
+          player.gold += amount;
+          console.log(
+            `You found ${amount} gold! Now you have ${player.gold} gold.`
+          );
+          this.convertToGroundTile();
         },
       };
     }
@@ -118,6 +122,9 @@ export const getNeighbors = (
       }
 
       let neighbor = map.find(getTileAtXY(neighborX, neighborY));
+      if (neighbor === undefined) {
+        continue;
+      }
       neighbors.push(neighbor);
     }
   }

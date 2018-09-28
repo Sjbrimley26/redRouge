@@ -88,6 +88,53 @@ window.onload = () => {
     duration: 5,
     strength: 5,
   });
+
+  document.addEventListener("click", e => {
+    const { clientX, clientY } = e;
+    const getTileCoords = (x, y) => {
+      const tileX = Math.floor(x / 64) * 64;
+      const tileY = Math.floor(y / 64) * 64;
+      return [tileX, tileY];
+    };
+    let [tileX, tileY] = getTileCoords(clientX + camera.x, clientY + camera.y);
+    const player = getOrThrow(gameObjects.get("player"));
+    const dy = Math.abs(tileY + 32 - (player.y + 32));
+    const dx = Math.abs(tileX + 32 - (player.x + 32));
+    // const b = player.y - player.x * slope;
+    let xFactor = tileX > player.x ? 64 : -64;
+    let yFactor = tileY > player.y ? 64 : -64;
+    let xyCoords = [];
+    let y = player.y;
+    let x = player.x;
+    let d = dx - dy;
+    let condition = true;
+    while (condition) {
+      xyCoords.push(getTileCoords(x, y));
+      if (x == tileX && y == tileY) {
+        condition = false;
+      }
+      let d2 = 2 * d;
+      if (d2 > -dy) {
+        d -= dy;
+        x += xFactor;
+      }
+      if (d2 < dx) {
+        d += dx;
+        y += yFactor;
+      }
+    }
+    const tilesInALine = xyCoords.map(tile =>
+      gameMap.getTileAtXY(tile[0], tile[1])
+    );
+    tilesInALine.forEach(tile => {
+      console.log(tile);
+      let originalColor = tile.color;
+      tile.color = "rgb(255, 255, 255)";
+      setTimeout(() => {
+        tile.color = originalColor;
+      }, 2000);
+    });
+  });
 };
 
 window.addEventListener(
@@ -106,6 +153,13 @@ const render = () => {
 const startTurn = () => {
   const player: EntityType = getOrThrow(gameObjects.get("player"));
   player.onStartTurn();
+  /*
+    This updateTiles is for the gold, since the collision function is added during generation
+    instead of through the gameMap.addEffectToTile, so the gold's collision listener 
+    has no reference to the gameMap object, and thus can't trigger the refresh, unlike the
+    collision listeners added by the addEffectToTile method.
+  */
+  gameMap.updateTiles();
 
   const originX = player.x;
   const originY = player.y;

@@ -1,8 +1,9 @@
 // @flow
 
 import Entity from "./Entity";
+import type { EntityType } from "../../flowTypes";
 
-const Player = () => {
+const Player = (): EntityType => {
   const player: any = Entity({
     size: 64,
     color: "rgb(255, 0, 0)",
@@ -13,6 +14,7 @@ const Player = () => {
   });
   player.visible = true;
   player.sightRadius = 4;
+  player.gold = 0;
   return player;
 };
 

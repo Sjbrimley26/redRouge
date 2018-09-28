@@ -1,9 +1,6 @@
 // @flow
 
-import sample from "lodash/sample";
-import { livingTileColors } from "../tiles";
 import { MAP_HEIGHT, MAP_WIDTH, TILE_SIZE } from "./config";
-import { doneColliding } from "../../logic";
 import type { FloorTileType, EffectType, EntityType } from "../../flowTypes";
 import { generateTiles, getNeighbors } from "./mapGenerator";
 import getFOV from "./fov";
@@ -40,12 +37,7 @@ const createTileMap = (
       affectedTile.effect = effect;
 
       affectedTile.onCollide = () => {
-        affectedTile.type = "ground";
-        affectedTile.color = sample(livingTileColors);
-        affectedTile.collidableWith = [];
-        affectedTile.isOpaque = false;
-        delete affectedTile.effect;
-        doneColliding(affectedTile);
+        affectedTile.convertToGroundTile();
         map.updateTiles();
       };
 
