@@ -17,6 +17,8 @@ import {
   MAP_WIDTH,
 } from "../objects/map";
 
+import { getTileCoords } from "../objects/map/utilities";
+
 import { QuadTree, Camera } from "../classes";
 
 import Player from "../objects/entities/Player";
@@ -91,45 +93,14 @@ window.onload = () => {
 
   document.addEventListener("click", e => {
     const { clientX, clientY } = e;
-    const getTileCoords = (x, y) => {
-      const tileX = Math.floor(x / 64) * 64;
-      const tileY = Math.floor(y / 64) * 64;
-      return [tileX, tileY];
-    };
     let [tileX, tileY] = getTileCoords(clientX + camera.x, clientY + camera.y);
-    const player = getOrThrow(gameObjects.get("player"));
-    const dy = Math.abs(tileY + 32 - (player.y + 32));
-    const dx = Math.abs(tileX + 32 - (player.x + 32));
-    // const b = player.y - player.x * slope;
-    let xFactor = tileX > player.x ? 64 : -64;
-    let yFactor = tileY > player.y ? 64 : -64;
-    let xyCoords = [];
-    let y = player.y;
-    let x = player.x;
-    let d = dx - dy;
-    let condition = true;
-    while (condition) {
-      xyCoords.push(getTileCoords(x, y));
-      if (x == tileX && y == tileY) {
-        condition = false;
-      }
-      let d2 = 2 * d;
-      if (d2 > -dy) {
-        d -= dy;
-        x += xFactor;
-      }
-      if (d2 < dx) {
-        d += dx;
-        y += yFactor;
-      }
-    }
-    const tilesInALine = xyCoords.map(tile =>
-      gameMap.getTileAtXY(tile[0], tile[1])
-    );
+    const { x, y } = getOrThrow(gameObjects.get("player"));
+    const tilesInALine = gameMap.getLineOfTiles(x, y, tileX, tileY);
+    let colorValue = 100;
     tilesInALine.forEach(tile => {
-      console.log(tile);
       let originalColor = tile.color;
-      tile.color = "rgb(255, 255, 255)";
+      tile.color = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+      colorValue += 20;
       setTimeout(() => {
         tile.color = originalColor;
       }, 2000);
