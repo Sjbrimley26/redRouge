@@ -49,6 +49,7 @@ export type FloorTileType = {
   visible: boolean,
   isOpaque: boolean,
   getClone: void => FloorTileType,
+  seen: boolean,
 };
 
 export type EffectType = {

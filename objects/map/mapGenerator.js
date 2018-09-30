@@ -5,7 +5,9 @@ import sample from "lodash/sample";
 import { wallTile, floorTile, livingTileColors } from "../tiles";
 import type { FloorTileType } from "../../flowTypes";
 import { TILE_SIZE, MAP_HEIGHT, MAP_WIDTH } from "./config";
-import { get_random_number } from "../../utilities";
+import { get_random_number, get_new_id } from "../../utilities";
+import { getOrThrow } from "../../logic";
+import { getDijkstraPath, getFurthestTile } from "./dijkstra";
 
 const getTileAtXY = (x, y) => tile => {
   return tile.x === x && tile.y === y;
@@ -24,6 +26,7 @@ const spawnTiles = (width, height, tile_size): FloorTileType[] => {
       }
       tile.x = i;
       tile.y = j;
+      tile.id = get_new_id();
       tiles.push(tile);
     }
   }
@@ -74,25 +77,35 @@ const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
   const place = (tile, index): void => {
     let nbs = countLivingNeighbors(oldMap, tile.x, tile.y);
     if (tile.type === "ground" && nbs === treasureLimit) {
-      newMap[index] = {
-        ...newMap[index],
-        type: "trigger",
-        color: "rgb(255, 200, 0)",
-        isOpaque: true,
-        collidableWith: ["player"],
-        onCollide(player) {
-          let amount = get_random_number(5, 26);
-          player.gold += amount;
-          console.log(
-            `You found ${amount} gold! Now you have ${player.gold} gold.`
-          );
-          this.convertToGroundTile();
-        },
-      };
+      newMap[index].addEffect("rgb(255, 200, 0)", {
+        name: "gold",
+        type: "gold",
+        strength: get_random_number(5, 26),
+      });
     }
   };
 
   oldMap.forEach(place);
+  return newMap;
+};
+
+const addDijkstraNeighbors = (oldMap: FloorTileType[]): FloorTileType[] => {
+  const setNeighbors = (tile: FloorTileType): FloorTileType => {
+    let nbs = getNeighbors(oldMap, tile.x, tile.y);
+    tile.neighbors = {};
+    tile.neighbors = nbs.reduce((neighborObj, neighbor) => {
+      if (neighbor.type === "ground") {
+        neighborObj[neighbor.id] = {
+          distance: 1,
+          type: neighbor.type,
+        };
+      }
+      return neighborObj;
+    }, {});
+    return tile;
+  };
+
+  let newMap = oldMap.map(setNeighbors);
   return newMap;
 };
 
@@ -136,21 +149,8 @@ const countLivingNeighbors = (
   x: number,
   y: number
 ): number => {
-  let count = 0;
-  getNeighbors(map, x, y).forEach(neighbor => {
-    /*
-    if (
-      // include tiles past the edge of the map, this conditional is optional
-      neighbor == undefined
-    ) {
-      count++;
-    }
-    */
-    if (neighbor.type !== "wall") {
-      count++;
-    }
-  });
-  return count;
+  let tile = map.find(getTileAtXY(x, y));
+  return Object.entries(tile.neighbors).length;
 };
 
 // I'm using 64 and 64 each time since that is the players' start location
@@ -162,10 +162,8 @@ const floodFill = (
 ): FloorTileType[] => {
   const { x, y } = tile;
   alreadyChecked.push([x, y]);
-  getNeighbors(map, x, y).forEach(neighbor => {
-    if (neighbor.type !== "wall") {
-      fill.add(neighbor);
-    }
+  Object.keys(tile.neighbors).forEach(id => {
+    fill.add(map.find(t => t.id === id));
   });
   fill.forEach(neighbor => {
     if (
@@ -215,14 +213,53 @@ export const generateTiles = (
   tile_size: number,
   iterations: number
 ): FloorTileType[] => {
+  console.time("generateTiles");
+  let tiles = getMapOfAdequateSize(width, height, tile_size, iterations);
+  console.log(
+    `Map is ${(getGroundPercentage(tiles) * 100).toFixed(0)}% ground.`
+  );
+  tiles = addTreasure(tiles);
+  tiles = addDijkstraNeighbors(tiles);
+  console.timeEnd("generateTiles");
+  // console.log(tiles);
+  const test = () => {
+    let tileA = tiles.find(getTileAtXY(64, 64));
+    let tileB = getFurthestTile(tiles, tileA.id);
+    console.log(getDijkstraPath(tiles, tileA.id, tileB.id));
+  };
+  test();
+  return tiles;
+};
+
+const getMapOfAdequateSize = (
+  width,
+  height,
+  tile_size,
+  iterations,
+  minimumGround = 0.45
+) => {
   let tiles = spawnTiles(width, height, tile_size);
+  // console.log("Initial tiles spawned.");
+  tiles = addDijkstraNeighbors(tiles);
   for (let i = 0; i < iterations; i++) {
     tiles = doSimulationStep(tiles);
+    tiles = addDijkstraNeighbors(tiles);
   }
-  tiles = removeTilesOutsideFill(tiles, floodFill(tiles, { x: 64, y: 64 }));
-  while (getGroundPercentage(tiles) < 0.45) {
-    tiles = generateTiles(width, height, tile_size, iterations);
+  // console.log("Cellular automata simulation finished.");
+  const startTile = getOrThrow(tiles.find(getTileAtXY(64, 64)));
+  startTile.convertToGroundTile();
+  tiles = removeTilesOutsideFill(tiles, floodFill(tiles, startTile));
+  // console.log("Excess caves removed.");
+  while (getGroundPercentage(tiles) < minimumGround) {
+    // console.log("Map too small, resetting generation.");
+    tiles = getMapOfAdequateSize(
+      width,
+      height,
+      tile_size,
+      iterations,
+      minimumGround
+    );
   }
-  tiles = addTreasure(tiles);
+  tiles = addDijkstraNeighbors(tiles);
   return tiles;
 };

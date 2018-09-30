@@ -19,7 +19,7 @@ import {
 
 import { getTileCoords } from "../objects/map/utilities";
 
-import { QuadTree, Camera } from "../classes";
+import { QuadTree, Camera, MessageBoard } from "../classes";
 
 import Player from "../objects/entities/Player";
 
@@ -38,6 +38,7 @@ import {
   doneColliding,
   checkIfPlayerHitWall,
   getOrThrow,
+  actionKeys,
 } from "../logic";
 
 const gameMap = createTileMap();
@@ -77,6 +78,7 @@ window.onload = () => {
   // console.log(player);
   gameMap.setVisibleTiles(player);
 
+  /*
   gameMap.addEffectToTile(192, 128, {
     name: "poison mushroom",
     type: "poison",
@@ -90,22 +92,29 @@ window.onload = () => {
     duration: 5,
     strength: 5,
   });
+  */
 
-  document.addEventListener("click", e => {
-    const { clientX, clientY } = e;
-    let [tileX, tileY] = getTileCoords(clientX + camera.x, clientY + camera.y);
-    const { x, y } = getOrThrow(gameObjects.get("player"));
-    const tilesInALine = gameMap.getLineOfTiles(x, y, tileX, tileY);
-    let colorValue = 100;
-    tilesInALine.forEach(tile => {
-      let originalColor = tile.color;
-      tile.color = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-      colorValue += 20;
-      setTimeout(() => {
-        tile.color = originalColor;
-      }, 2000);
-    });
-  });
+  document.addEventListener(
+    "click",
+    (e: MouseEvent): void => {
+      const { clientX, clientY } = e;
+      const [tileX, tileY] = getTileCoords(
+        clientX + camera.x,
+        clientY + camera.y
+      );
+      const { x, y } = getOrThrow(gameObjects.get("player"));
+      const tilesInALine = gameMap.getLineOfTiles(x, y, tileX, tileY);
+      let colorValue = 100;
+      tilesInALine.forEach(tile => {
+        const originalColor = tile.color;
+        tile.color = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
+        colorValue += 20;
+        setTimeout(() => {
+          tile.color = originalColor;
+        }, 2000);
+      });
+    }
+  );
 };
 
 window.addEventListener(
@@ -122,6 +131,7 @@ const render = () => {
 };
 
 const startTurn = () => {
+  // messageBoard.log("New turn");
   const player: EntityType = getOrThrow(gameObjects.get("player"));
   player.onStartTurn();
   /*
@@ -144,26 +154,28 @@ const startTurn = () => {
     const mover: EntityType = getOrThrow(gameObjects.get("player"));
 
     triggerKeyAction(e.keyCode, mover);
-    relocateIfPastBorder(mover);
+    if (actionKeys.includes(e.keyCode)) {
+      relocateIfPastBorder(mover);
 
-    gameObjects.set("player", mover);
+      gameObjects.set("player", mover);
 
-    for (let sprite of gameObjects.values()) {
-      quadtree.insert(sprite);
-    }
+      for (let sprite of gameObjects.values()) {
+        quadtree.insert(sprite);
+      }
 
-    detectCollision(quadtree);
+      detectCollision(quadtree);
 
-    if (checkIfPlayerHitWall(gameObjects.get("player"))) {
-      let tempPlayer: EntityType = getOrThrow(gameObjects.get("player"));
-      console.log(`You ran into a ${tempPlayer.collidingWith.type}`);
-      tempPlayer.x = originX;
-      tempPlayer.y = originY;
-      tempPlayer.onMove();
-      gameObjects.set("player", tempPlayer);
-      endTurn();
-    } else {
-      endTurn();
+      if (checkIfPlayerHitWall(gameObjects.get("player"))) {
+        let tempPlayer: EntityType = getOrThrow(gameObjects.get("player"));
+        MessageBoard.log(`You ran into a ${tempPlayer.collidingWith.type}`);
+        tempPlayer.x = originX;
+        tempPlayer.y = originY;
+        tempPlayer.onMove();
+        gameObjects.set("player", tempPlayer);
+        endTurn();
+      } else {
+        endTurn();
+      }
     }
   };
 

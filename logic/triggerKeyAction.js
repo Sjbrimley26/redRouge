@@ -1,4 +1,4 @@
-const triggerKeyAction = (keyCode, player) => {
+export const triggerKeyAction = (keyCode, player) => {
   switch (keyCode) {
     case 37:
     case 65:
@@ -54,4 +54,21 @@ const triggerKeyAction = (keyCode, player) => {
   }
 };
 
-export default triggerKeyAction;
+export const actionKeys = [
+  37,
+  65,
+  100,
+  38,
+  87,
+  104,
+  39,
+  68,
+  102,
+  40,
+  83,
+  98,
+  97,
+  103,
+  105,
+  99,
+];

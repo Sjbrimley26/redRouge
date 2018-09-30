@@ -5,6 +5,7 @@ import { TILE_SIZE } from "../map/config";
 import sample from "lodash/sample";
 import { get_new_id } from "../../utilities";
 import { doneColliding } from "../../logic";
+import MessageBoard from "../../classes/MessageBoard";
 
 export const clonable = {
   getClone() {
@@ -105,7 +106,7 @@ export const moveable = {
             `The ${tag} has worn off.`,
             `It seems that the ${tag} effect stopped.`,
           ];
-          console.log(sample(messages));
+          MessageBoard.log(sample(messages));
           this.limitedMovementListeners.delete(tag);
           this.movementListeners.delete(tag);
         }

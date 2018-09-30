@@ -26,22 +26,13 @@ const createTileMap = (
 
     tiles,
 
-    getTileAtXY(x: number, y: number) {
+    getTileAtXY(x: number, y: number): FloorTileType | void {
       return this.tiles.find(tile => tile.x == x && tile.y == y);
     },
 
     addEffectToTile(x: number, y: number, effect: EffectType) {
       let affectedTile = this.getTileAtXY(x, y);
-      affectedTile.type = "trigger";
-      affectedTile.color = "rgb(0, 0, 255)";
-      affectedTile.collidableWith = ["player"];
-      affectedTile.effect = effect;
-
-      affectedTile.onCollide = () => {
-        affectedTile.convertToGroundTile();
-        map.updateTiles();
-      };
-
+      affectedTile.addEffect("rgb(0, 0, 255)", effect);
       this.updateTiles();
     },
 
@@ -58,11 +49,16 @@ const createTileMap = (
       getFOV(player, neighbors);
     },
 
-    getLineOfTiles(x1, y1, x2, y2) {
-      const dy = Math.abs(y2 + 32 - (y1 + 32));
-      const dx = Math.abs(x2 + 32 - (x1 + 32));
-      let xFactor = x2 > x1 ? 64 : -64;
-      let yFactor = y2 > y1 ? 64 : -64;
+    getLineOfTiles(
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number
+    ): FloorTileType[] {
+      const dy = Math.abs(y2 + TILE_SIZE / 2 - (y1 + TILE_SIZE / 2));
+      const dx = Math.abs(x2 + TILE_SIZE / 2 - (x1 + TILE_SIZE / 2));
+      let xFactor = x2 > x1 ? TILE_SIZE : -TILE_SIZE;
+      let yFactor = y2 > y1 ? TILE_SIZE : -TILE_SIZE;
       let xyCoords = [];
       let y = y1;
       let x = x1;
@@ -70,6 +66,7 @@ const createTileMap = (
       let condition = true;
       while (condition) {
         xyCoords.push(getTileCoords(x, y));
+        // if this is placed before the if statement, the origin tile is included
         if (x == x2 && y == y2) {
           condition = false;
         }
@@ -83,7 +80,9 @@ const createTileMap = (
           y += yFactor;
         }
       }
-      return xyCoords.map(tile => map.getTileAtXY(tile[0], tile[1]));
+      return xyCoords.map(
+        (tile: number[]): FloorTileType[] => map.getTileAtXY(tile[0], tile[1])
+      );
     },
   };
 

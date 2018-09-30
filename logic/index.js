@@ -1,5 +1,5 @@
 import detectCollision from "./detectCollision";
-import triggerKeyAction from "./triggerKeyAction";
+import { triggerKeyAction, actionKeys } from "./triggerKeyAction";
 import {
   relocateIfPastBorder,
   doneColliding,
@@ -14,4 +14,5 @@ module.exports = {
   doneColliding,
   checkIfPlayerHitWall,
   getOrThrow,
+  actionKeys,
 };
