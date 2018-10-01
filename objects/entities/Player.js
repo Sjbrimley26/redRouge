@@ -14,7 +14,6 @@ const Player = (): EntityType => {
   });
   player.visible = true;
   player.sightRadius = 4;
-  player.gold = 0;
   return player;
 };
 

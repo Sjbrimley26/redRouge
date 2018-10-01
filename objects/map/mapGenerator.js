@@ -39,7 +39,7 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
   let newMap = [];
 
   const simulate = (tile, index): void => {
-    let nbs = countLivingNeighbors(oldMap, tile.x, tile.y);
+    let nbs = countLivingNeighbors(tile);
     if (oldMap[index].type === "ground") {
       if (nbs >= deathLimit) {
         newMap[index] = {
@@ -73,9 +73,16 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
 const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
   const treasureLimit = 3;
   let newMap = [...oldMap];
+  const maxAmountOfTreasure = 12;
+  let treasurePlaced = 0;
 
   const place = (tile, index): void => {
-    let nbs = countLivingNeighbors(oldMap, tile.x, tile.y);
+    if (treasurePlaced < maxAmountOfTreasure) {
+      treasurePlaced++;
+    } else {
+      return;
+    }
+    let nbs = countLivingNeighbors(tile);
     if (tile.type === "ground" && nbs === treasureLimit) {
       newMap[index].addEffect("rgb(255, 200, 0)", {
         name: "gold",
@@ -151,13 +158,8 @@ export const getNeighbors = (
   return neighbors;
 };
 
-const countLivingNeighbors = (
-  map: FloorTileType[],
-  x: number,
-  y: number
-): number => {
-  let tile = map.find(getTileAtXY(x, y));
-  return Object.entries(tile.neighbors).length;
+const countLivingNeighbors = (tile: FloorTileType): number => {
+  return Object.keys(tile.neighbors).length;
 };
 
 // I'm using 64 and 64 each time since that is the players' start location
@@ -231,8 +233,8 @@ export const generateTiles = (
   // console.log(tiles);
   const test = () => {
     let tileA = tiles.find(getTileAtXY(64, 64));
-    let tileB = getFurthestTile(tiles, tileA.id);
-    console.log(getDijkstraPath(tiles, tileA.id, tileB.id));
+    let tileB = getFurthestTile(tiles, tileA);
+    console.log(getDijkstraPath(tiles, tileA, tileB));
   };
   test();
   /*

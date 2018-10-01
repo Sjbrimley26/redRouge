@@ -142,6 +142,13 @@ const startTurn = () => {
   */
   gameMap.updateTiles();
 
+  const visibleTiles = gameMap.tiles.filter(tile => tile.visible);
+  const visibleEnemies = visibleTiles.filter(tile => tile.type === "enemy");
+
+  if (visibleEnemies > 0) {
+    console.log(visibleEnemies);
+  }
+
   const originX = player.x;
   const originY = player.y;
 

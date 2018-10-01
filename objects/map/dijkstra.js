@@ -8,18 +8,19 @@ const getDiff = arr1 => arr2 => {
   return arr1.filter(i => arr2.indexOf(i) < 0);
 };
 
-export const getDijkstraPath = (map, id1, id2) => {
+export const getDijkstraPath = (map, tile1, tile2) => {
   // console.log("Checking path");
-  const endTile = map.find(getTileById(id2));
-  if (endTile === undefined || endTile.type === "wall") {
-    console.log("Can't get a path to a wall tile!");
+  if (tile2 === undefined || tile2.type === "wall") {
+    console.log(new Error("Can't get a path to a wall tile!"));
     return {
       distance: 10000,
       path: [],
     };
   }
 
-  const { parents, distances } = getDistancesFromOrigin(map, id1);
+  const id2 = tile2.id;
+
+  const { parents, distances } = getDistancesFromOrigin(map, tile1);
 
   let path = [];
   let parent = parents[id2];
@@ -40,7 +41,7 @@ export const getDijkstraPath = (map, id1, id2) => {
   }
   path.reverse();
   path = path.map(id => map.find(getTileById(id)));
-  let red = 20;
+  let red = 0;
   path.map(tile => {
     red += 10;
     if (red > 255) red = 255;
@@ -49,15 +50,15 @@ export const getDijkstraPath = (map, id1, id2) => {
     }
     return (tile.color = `rgb(${red}, 0, 255)`);
   });
-  endTile.color = "rgb(255, 150, 200)";
+  tile2.color = "rgb(255, 150, 200)";
   return {
     distance: distances[id2],
     path,
   };
 };
 
-export const getFurthestTile = (map, originID) => {
-  const { distances } = getDistancesFromOrigin(map, originID);
+export const getFurthestTile = (map, originTile) => {
+  const { distances } = getDistancesFromOrigin(map, originTile);
   let furthestID = "";
   let furthest = 0;
   Object.entries(distances).forEach(tile => {
@@ -71,7 +72,7 @@ export const getFurthestTile = (map, originID) => {
 
 const getDistancesFromOrigin = (
   map,
-  originID
+  originTile
 ): {
   distances: any,
   parents: any,
@@ -79,6 +80,7 @@ const getDistancesFromOrigin = (
   console.time("get distances");
   const distances = {};
   const parents = {};
+  let originID = originTile.id;
   parents[originID] = undefined;
   const processed = [];
   const allCheckableIDs = map
@@ -89,13 +91,12 @@ const getDistancesFromOrigin = (
     })
     .filter(tile => tile !== undefined);
 
-  const startTile = map.find(getTileById(originID));
-  processed.push(startTile.id);
-  Object.entries(startTile.neighbors).forEach(pair => {
+  processed.push(originID);
+  Object.entries(originTile.neighbors).forEach(pair => {
     let id = pair[0];
     let neighbor = pair[1];
     distances[id] = neighbor.distance;
-    parents[id] = startTile.id;
+    parents[id] = originTile.id;
   });
 
   let iterations = 0;

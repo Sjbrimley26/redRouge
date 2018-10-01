@@ -41,6 +41,7 @@ const Entity = function({
       name,
       type,
       collidableWith: ["wall", "enemy", "trigger", "player"],
+      gold: 0,
     }
   );
 };
