@@ -94,9 +94,16 @@ const addDijkstraNeighbors = (oldMap: FloorTileType[]): FloorTileType[] => {
     let nbs = getNeighbors(oldMap, tile.x, tile.y);
     tile.neighbors = {};
     tile.neighbors = nbs.reduce((neighborObj, neighbor) => {
-      if (neighbor.type === "ground") {
+      if (tile.type === "trigger" && neighbor.type !== "wall") {
         neighborObj[neighbor.id] = {
-          distance: 1,
+          distance: 0, // so gold is more valuable
+          type: neighbor.type,
+        };
+        return neighborObj;
+      }
+      if (neighbor.type !== "wall") {
+        neighborObj[neighbor.id] = {
+          distance: neighbor.type === "ground" ? 1 : 0, // so gold is more valuable
           type: neighbor.type,
         };
       }
@@ -228,6 +235,14 @@ export const generateTiles = (
     console.log(getDijkstraPath(tiles, tileA.id, tileB.id));
   };
   test();
+  /*
+  console.log(
+    "Tiles with trigger neighbors",
+    tiles.filter(tile =>
+      Object.values(tile.neighbors).some(nb => nb.type === "trigger")
+    )
+  );
+  */
   return tiles;
 };
 

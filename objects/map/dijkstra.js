@@ -44,6 +44,9 @@ export const getDijkstraPath = (map, id1, id2) => {
   path.map(tile => {
     red += 10;
     if (red > 255) red = 255;
+    if (tile.type === "trigger") {
+      return (tile.color = "rgb(255, 90, 0)");
+    }
     return (tile.color = `rgb(${red}, 0, 255)`);
   });
   endTile.color = "rgb(255, 150, 200)";
@@ -56,13 +59,13 @@ export const getDijkstraPath = (map, id1, id2) => {
 export const getFurthestTile = (map, originID) => {
   const { distances } = getDistancesFromOrigin(map, originID);
   let furthestID = "";
-  Object.entries(distances).reduce((furthest, tile) => {
+  let furthest = 0;
+  Object.entries(distances).forEach(tile => {
     if (tile[1] > furthest) {
       furthest = tile[1];
       furthestID = tile[0];
     }
-    return furthest;
-  }, 0);
+  });
   return map.find(getTileById(furthestID));
 };
 
@@ -75,13 +78,12 @@ const getDistancesFromOrigin = (
 } => {
   console.time("get distances");
   const distances = {};
-  const parents = {
-    originID: undefined,
-  };
+  const parents = {};
+  parents[originID] = undefined;
   const processed = [];
   const allCheckableIDs = map
     .map(tile => {
-      if (tile.type === "ground") {
+      if (tile.type !== "wall") {
         return tile.id;
       }
     })
@@ -116,8 +118,8 @@ const getDistancesFromOrigin = (
         let newDistance = distance + neighbor.distance;
         if (Object.keys(distances).includes(tileID)) {
           if (distances[tileID] > newDistance) {
-            distances[tileID] = newDistance;
             if (tileID !== originID) {
+              distances[tileID] = newDistance;
               parents[tileID] = id;
             }
           }
@@ -132,12 +134,42 @@ const getDistancesFromOrigin = (
     });
   }
 
+  /*
+  const possibleDuplicateParents = [];
+  const duplicates = [];
+  Object.values(parents).forEach(parent => {
+    if (possibleDuplicateParents.includes(parent)) {
+      if (!duplicates.includes(parent)) {
+        duplicates.push(parent);
+      }
+      return;
+    }
+    possibleDuplicateParents.push(parent);
+  });
+  if (duplicates.length !== 0) {
+    console.log(
+      "Duplicates detected!",
+      duplicates.map(id => map.find(getTileById(id)).type)
+    );
+  }
+  */
+
   if (allCheckableIDs.length > processed.length) {
     console.log(
       "Some tiles weren't checked",
       getDiff(allCheckableIDs)(processed)
     );
   }
+
+  /*
+  let negativeDistances = [];
+  Object.entries(distances).forEach(([id, distance]) => {
+    if (distance < 0) {
+      negativeDistances.push(map.find(getTileById(id)));
+    }
+  });
+  console.log(negativeDistances);
+  */
 
   console.timeEnd("get distances");
   return {
