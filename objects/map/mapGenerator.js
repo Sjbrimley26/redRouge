@@ -96,6 +96,7 @@ const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
         name: "gold",
         type: "gold",
         strength: get_random_number(5, 26),
+        duration: undefined,
       });
     }
   };
@@ -173,16 +174,17 @@ const countLivingNeighbors = (tile: FloorTileType): number => {
 // I'm using 64 and 64 each time since that is the players' start location
 const floodFill = (
   map: FloorTileType[],
-  tile,
+  tile: FloorTileType,
   fill = new Set(),
   alreadyChecked = []
-): FloorTileType[] => {
+): FloorTileType[] | void => {
   const { x, y } = tile;
   alreadyChecked.push([x, y]);
   Object.keys(tile.neighbors).forEach(id => {
     fill.add(map.find(t => t.id === id));
   });
   fill.forEach(neighbor => {
+    if (neighbor === undefined) return;
     if (
       alreadyChecked.some(([x, y]) => {
         return neighbor.x === x && neighbor.y === y;

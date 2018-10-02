@@ -12,14 +12,20 @@ const Enemy = ({
   y: number,
   name: string,
 }): EntityType => {
-  const enemy = Entity({
-    size: 64,
-    x,
-    y,
-    name,
-    type: "enemy",
-    color: "rgb(100, 150, 200)",
-  });
+  const enemy = Object.assign(
+    {},
+    Entity({
+      size: 64,
+      x,
+      y,
+      name,
+      type: "enemy",
+      color: "rgb(100, 150, 200)",
+    }),
+    {
+      sightRadius: 0,
+    }
+  );
 
   return enemy;
 };

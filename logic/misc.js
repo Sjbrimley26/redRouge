@@ -17,8 +17,8 @@ const relocateIfPastBorder = player => {
     player.y = 0;
   }
 
-  if (player.y > MAP_HEIGHT - TILE_SIZE) {
-    player.y = MAP_HEIGHT - TILE_SIZE;
+  if (player.y > MAP_HEIGHT) {
+    player.y = MAP_HEIGHT;
   }
 
   if (player.y !== originalY || player.x !== originalX) {

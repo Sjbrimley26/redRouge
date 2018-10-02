@@ -25,6 +25,7 @@ export type SpriteType = {
   y: number,
   color: string,
   visible: boolean,
+  seen: boolean | void,
 };
 
 export type EntityType = {
@@ -52,11 +53,13 @@ export type FloorTileType = {
   seen: boolean,
   addEffect: (string, EffectType) => void,
   effect: EffectType | void,
+  id: string,
+  neighbors: any | void,
 };
 
 export type EffectType = {
   name: string,
   type: string,
   strength: number,
-  duration: number,
+  duration: number | void,
 };

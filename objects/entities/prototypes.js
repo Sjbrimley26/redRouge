@@ -8,6 +8,11 @@ import { doneColliding } from "../../logic";
 import MessageBoard from "../../classes/MessageBoard";
 import type { FloorTileType } from "../../flowTypes";
 
+const getMap = () => {
+  let map: Map<string, any> = new Map();
+  return map;
+};
+
 export const clonable = {
   getClone() {
     return Object.create(this);
@@ -15,7 +20,7 @@ export const clonable = {
 };
 
 export const collidable = {
-  isCollidableWith(object) {
+  isCollidableWith(object: any) {
     return this.collidableWith.some(type => type === object.type);
   },
 
@@ -43,8 +48,8 @@ export const triggersTiles = {
 };
 
 export const moveable = {
-  movementListeners: new Map(),
-  limitedMovementListeners: new Map(),
+  movementListeners: getMap(),
+  limitedMovementListeners: getMap(),
 
   moveUp() {
     this.y -= TILE_SIZE;
@@ -84,7 +89,7 @@ export const moveable = {
     }
   },
 
-  removeMovementListener(tag) {
+  removeMovementListener(tag: string) {
     if (this.movementListeners.has(tag)) {
       this.movementListeners.delete(tag);
     }
