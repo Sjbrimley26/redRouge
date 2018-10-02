@@ -64,11 +64,14 @@ gameObjects.set("player", player);
 
 const showPathToClosestGold = map => player => {
   map.tiles.map(tile => {
-    if (tile.type === "ground") {
+    if (tile.color === "rgb(255, 0, 255)" && tile.type === "ground") {
       tile.color = sample(livingTileColors);
     }
-    if (tile.type === "trigger") {
+    if (tile.color === "rgb(255, 0, 255)" && tile.type === "trigger") {
       tile.color = "rgb(255, 200, 0)";
+    }
+    if (tile.color === "rgb(255, 0, 255)" && tile.type === "wall") {
+      tile.color = "rgb(50, 50, 50)";
     }
     return tile;
   });
@@ -82,9 +85,27 @@ const showPathToClosestGold = map => player => {
     map.getTileAtXY(player.x, player.y),
     goldTiles
   );
+  if (goldPaths === undefined) {
+    return console.log(new Error("Paths not found!"));
+  }
   goldPaths.sort((a, b) => {
-    return a.distance > b.distance;
+    return a.distance - b.distance;
   });
+  // console.log(goldPaths.map(path => path.distance));
+  /*
+  console.log(
+    goldPaths.map(path => {
+      const { id, distance } = path;
+      const foundTile = map.tiles.find(tile => tile.id === id);
+      const { x, y } = foundTile;
+      return {
+        x,
+        y,
+        distance,
+      };
+    })
+  );
+  */
   goldPaths[0].path.forEach(tile => {
     tile.color = "rgb(255, 0, 255)";
   });

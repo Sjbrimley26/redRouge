@@ -81,7 +81,11 @@ const getDistancesFromOrigin = (
   const distances = {};
   const parents = {};
   if (originTile === undefined) {
-    return console.log(new Error("Invalid origin tile"));
+    console.log(new Error("Invalid origin tile"));
+    return {
+      distances: {},
+      parents: {},
+    };
   }
   let originID = originTile.id;
   parents[originID] = undefined;
@@ -154,6 +158,10 @@ const getDistancesFromOrigin = (
 
 export const getMultiplePaths = (map, originTile, destinationTileArr) => {
   const { parents, distances } = getDistancesFromOrigin(map, originTile);
+  if (Object.keys(parents).length === 0) {
+    console.log(new Error("Could not get paths."));
+    return undefined;
+  }
   return destinationTileArr.map(endTile => {
     if (endTile === undefined || endTile.type === "wall") {
       console.log(new Error("Can't get a path to a wall tile!"));
