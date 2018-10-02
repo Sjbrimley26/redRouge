@@ -7,6 +7,7 @@ import "babel-polyfill";
 import "../assets/styles/global.scss";
 
 import debounce from "lodash/debounce";
+import sample from "lodash/sample";
 
 import type { EntityType, CameraType } from "../flowTypes";
 
@@ -16,6 +17,8 @@ import {
   MAP_HEIGHT,
   MAP_WIDTH,
 } from "../objects/map";
+
+import { livingTileColors } from "../objects/tiles/colors";
 
 import { getTileCoords } from "../objects/map/utilities";
 
@@ -41,6 +44,8 @@ import {
   actionKeys,
 } from "../logic";
 
+import { getMultiplePaths } from "../objects/map/dijkstra";
+
 const gameMap = createTileMap();
 
 const gameObjects = new Map();
@@ -56,6 +61,34 @@ const player: EntityType = Player();
 const camera: CameraType = Camera();
 
 gameObjects.set("player", player);
+
+const showPathToClosestGold = map => player => {
+  map.tiles.map(tile => {
+    if (tile.type === "ground") {
+      tile.color = sample(livingTileColors);
+    }
+    if (tile.type === "trigger") {
+      tile.color = "rgb(255, 200, 0)";
+    }
+    return tile;
+  });
+
+  const goldTiles = map.tiles.filter(tile => tile.type === "trigger");
+  if (goldTiles.length < 1) {
+    return console.log("No more gold to find!");
+  }
+  const goldPaths = getMultiplePaths(
+    map.tiles,
+    map.getTileAtXY(player.x, player.y),
+    goldTiles
+  );
+  goldPaths.sort((a, b) => {
+    return a.distance > b.distance;
+  });
+  goldPaths[0].path.forEach(tile => {
+    tile.color = "rgb(255, 0, 255)";
+  });
+};
 
 player.addMovementListener("cameraTracker", camera.trackPlayer);
 player.addMovementListener("visibilityTracker", gameMap.setVisibleTiles);
@@ -77,7 +110,6 @@ window.onload = () => {
   startTurn();
   // console.log(player);
   gameMap.setVisibleTiles(player);
-
   /*
   gameMap.addEffectToTile(192, 128, {
     name: "poison mushroom",
@@ -141,6 +173,8 @@ const startTurn = () => {
     collision listeners added by the addEffectToTile method.
   */
   gameMap.updateTiles();
+  player.removeMovementListener("goldPath");
+  player.addMovementListener("goldPath", showPathToClosestGold(gameMap));
 
   const visibleTiles = gameMap.tiles.filter(tile => tile.visible);
   const visibleEnemies = visibleTiles.filter(tile => tile.type === "enemy");

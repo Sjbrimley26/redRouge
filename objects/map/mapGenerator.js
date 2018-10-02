@@ -7,10 +7,18 @@ import type { FloorTileType } from "../../flowTypes";
 import { TILE_SIZE, MAP_HEIGHT, MAP_WIDTH } from "./config";
 import { get_random_number, get_new_id } from "../../utilities";
 import { getOrThrow } from "../../logic";
-import { getDijkstraPath, getFurthestTile } from "./dijkstra";
+import {
+  // getDijkstraPath,
+  // getFurthestTile,
+  getMultiplePaths,
+} from "./dijkstra";
 
 const getTileAtXY = (x, y) => tile => {
   return tile.x === x && tile.y === y;
+};
+
+const getTileById = id => tile => {
+  return tile.id === id;
 };
 
 const spawnTiles = (width, height, tile_size): FloorTileType[] => {
@@ -77,13 +85,13 @@ const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
   let treasurePlaced = 0;
 
   const place = (tile, index): void => {
-    if (treasurePlaced < maxAmountOfTreasure) {
-      treasurePlaced++;
-    } else {
-      return;
-    }
     let nbs = countLivingNeighbors(tile);
-    if (tile.type === "ground" && nbs === treasureLimit) {
+    if (
+      tile.type === "ground" &&
+      nbs === treasureLimit &&
+      treasurePlaced < maxAmountOfTreasure
+    ) {
+      treasurePlaced++;
       newMap[index].addEffect("rgb(255, 200, 0)", {
         name: "gold",
         type: "gold",
@@ -223,6 +231,7 @@ export const generateTiles = (
   iterations: number
 ): FloorTileType[] => {
   console.time("generateTiles");
+  console.log("Spawning tiles...");
   let tiles = getMapOfAdequateSize(width, height, tile_size, iterations);
   console.log(
     `Map is ${(getGroundPercentage(tiles) * 100).toFixed(0)}% ground.`
@@ -233,8 +242,15 @@ export const generateTiles = (
   // console.log(tiles);
   const test = () => {
     let tileA = tiles.find(getTileAtXY(64, 64));
-    let tileB = getFurthestTile(tiles, tileA);
-    console.log(getDijkstraPath(tiles, tileA, tileB));
+    // let tileB = getFurthestTile(tiles, tileA);
+    // console.log("path to furthest tile", getDijkstraPath(tiles, tileA, tileB));
+    const goldTiles = tiles.filter(tile => tile.type === "trigger");
+    const goldPaths = getMultiplePaths(tiles, tileA, goldTiles);
+    console.log(goldPaths);
+    goldPaths
+      .filter(path => path.distance < 5)
+      .map(path => tiles.find(getTileById(path.id)))
+      .forEach(tile => tile.convertToGroundTile());
   };
   test();
   /*
@@ -256,6 +272,7 @@ const getMapOfAdequateSize = (
   minimumGround = 0.45
 ) => {
   let tiles = spawnTiles(width, height, tile_size);
+  console.time("spawn tiles");
   // console.log("Initial tiles spawned.");
   tiles = addDijkstraNeighbors(tiles);
   for (let i = 0; i < iterations; i++) {
@@ -267,8 +284,9 @@ const getMapOfAdequateSize = (
   startTile.convertToGroundTile();
   tiles = removeTilesOutsideFill(tiles, floodFill(tiles, startTile));
   // console.log("Excess caves removed.");
+  console.timeEnd("spawn tiles");
   while (getGroundPercentage(tiles) < minimumGround) {
-    // console.log("Map too small, resetting generation.");
+    // console.log("Map too small, resetting generation...");
     tiles = getMapOfAdequateSize(
       width,
       height,

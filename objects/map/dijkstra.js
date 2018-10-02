@@ -8,9 +8,9 @@ const getDiff = arr1 => arr2 => {
   return arr1.filter(i => arr2.indexOf(i) < 0);
 };
 
-export const getDijkstraPath = (map, tile1, tile2) => {
+export const getDijkstraPath = (map, tile1, endTile) => {
   // console.log("Checking path");
-  if (tile2 === undefined || tile2.type === "wall") {
+  if (endTile === undefined || endTile.type === "wall") {
     console.log(new Error("Can't get a path to a wall tile!"));
     return {
       distance: 10000,
@@ -18,7 +18,7 @@ export const getDijkstraPath = (map, tile1, tile2) => {
     };
   }
 
-  const id2 = tile2.id;
+  const id2 = endTile.id;
 
   const { parents, distances } = getDistancesFromOrigin(map, tile1);
 
@@ -50,7 +50,7 @@ export const getDijkstraPath = (map, tile1, tile2) => {
     }
     return (tile.color = `rgb(${red}, 0, 255)`);
   });
-  tile2.color = "rgb(255, 150, 200)";
+  endTile.color = "rgb(255, 150, 200)";
   return {
     distance: distances[id2],
     path,
@@ -77,9 +77,12 @@ const getDistancesFromOrigin = (
   distances: any,
   parents: any,
 } => {
-  console.time("get distances");
+  // console.time("get distances");
   const distances = {};
   const parents = {};
+  if (originTile === undefined) {
+    return console.log(new Error("Invalid origin tile"));
+  }
   let originID = originTile.id;
   parents[originID] = undefined;
   const processed = [];
@@ -135,26 +138,6 @@ const getDistancesFromOrigin = (
     });
   }
 
-  /*
-  const possibleDuplicateParents = [];
-  const duplicates = [];
-  Object.values(parents).forEach(parent => {
-    if (possibleDuplicateParents.includes(parent)) {
-      if (!duplicates.includes(parent)) {
-        duplicates.push(parent);
-      }
-      return;
-    }
-    possibleDuplicateParents.push(parent);
-  });
-  if (duplicates.length !== 0) {
-    console.log(
-      "Duplicates detected!",
-      duplicates.map(id => map.find(getTileById(id)).type)
-    );
-  }
-  */
-
   if (allCheckableIDs.length > processed.length) {
     console.log(
       "Some tiles weren't checked",
@@ -162,19 +145,62 @@ const getDistancesFromOrigin = (
     );
   }
 
-  /*
-  let negativeDistances = [];
-  Object.entries(distances).forEach(([id, distance]) => {
-    if (distance < 0) {
-      negativeDistances.push(map.find(getTileById(id)));
-    }
-  });
-  console.log(negativeDistances);
-  */
-
-  console.timeEnd("get distances");
+  // console.timeEnd("get distances");
   return {
     distances,
     parents,
   };
+};
+
+export const getMultiplePaths = (map, originTile, destinationTileArr) => {
+  const { parents, distances } = getDistancesFromOrigin(map, originTile);
+  return destinationTileArr.map(endTile => {
+    if (endTile === undefined || endTile.type === "wall") {
+      console.log(new Error("Can't get a path to a wall tile!"));
+      return {
+        distance: 10000,
+        path: [],
+      };
+    }
+
+    const id2 = endTile.id;
+
+    let path = [];
+    let parent = parents[id2];
+    while (parent) {
+      if (path.includes(parent)) {
+        console.log(
+          "Cyclical loop!",
+          Object.entries(parents)
+            .filter(([id]) => path.includes(id))
+            .map(([id, parentID]) => {
+              return [map.find(getTileById(id)), parentID];
+            })
+        );
+        break;
+      }
+      path.push(parent);
+      parent = parents[parent];
+    }
+    path.reverse();
+    path = path.map(id => map.find(getTileById(id)));
+    /*
+    let red = 0;
+    path.map(tile => {
+      red += 10;
+      if (red > 255) red = 255;
+      if (tile.type === "trigger") {
+        return (tile.color = "rgb(255, 90, 0)");
+      }
+      return (tile.color = `rgb(${red}, 0, 255)`);
+    });
+    endTile.color =
+      endTile.type === "trigger" ? "rgb(255, 90, 0)" : "rgb(255, 150, 200)";
+    */
+    return {
+      id: id2,
+      distance: distances[id2],
+      path,
+    };
+  });
 };

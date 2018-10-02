@@ -50,6 +50,8 @@ export type FloorTileType = {
   isOpaque: boolean,
   getClone: void => FloorTileType,
   seen: boolean,
+  addEffect: (string, EffectType) => void,
+  effect: EffectType | void,
 };
 
 export type EffectType = {

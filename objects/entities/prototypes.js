@@ -6,6 +6,7 @@ import sample from "lodash/sample";
 import { get_new_id } from "../../utilities";
 import { doneColliding } from "../../logic";
 import MessageBoard from "../../classes/MessageBoard";
+import type { FloorTileType } from "../../flowTypes";
 
 export const clonable = {
   getClone() {
@@ -34,7 +35,7 @@ export const viewable = {
 
 // has to be added after collidable
 export const triggersTiles = {
-  onCollide(tile) {
+  onCollide(tile: FloorTileType) {
     if (tile.effect) {
       triggerStatusEffect(this, tile.effect);
     }
@@ -65,7 +66,7 @@ export const moveable = {
     return this;
   },
 
-  addMovementListener(tag, fn, turnLimit = 0) {
+  addMovementListener(tag: string, fn: any, turnLimit: number = 0) {
     if (this.movementListeners.has(tag)) {
       if (this.limitedMovementListeners.has(tag)) {
         // So the duration of the original effect is extended,
