@@ -38,7 +38,7 @@ const spawnTiles = (width, height, tile_size): FloorTileType[] => {
       tiles.push(tile);
     }
   }
-  return tiles;
+  return addDijkstraNeighbors(tiles);
 };
 
 const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
@@ -75,7 +75,7 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
   };
 
   oldMap.forEach(simulate);
-  return newMap;
+  return addDijkstraNeighbors(newMap);
 };
 
 const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
@@ -102,7 +102,7 @@ const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
   };
 
   oldMap.forEach(place);
-  return newMap;
+  return addDijkstraNeighbors(newMap);
 };
 
 const addDijkstraNeighbors = (oldMap: FloorTileType[]): FloorTileType[] => {
@@ -239,7 +239,6 @@ export const generateTiles = (
     `Map is ${(getGroundPercentage(tiles) * 100).toFixed(0)}% ground.`
   );
   tiles = addTreasure(tiles);
-  tiles = addDijkstraNeighbors(tiles);
   console.timeEnd("generateTiles");
   // console.log(tiles);
   const test = () => {
@@ -248,7 +247,7 @@ export const generateTiles = (
     // console.log("path to furthest tile", getDijkstraPath(tiles, tileA, tileB));
     const goldTiles = tiles.filter(tile => tile.type === "trigger");
     const goldPaths = getMultiplePaths(tiles, tileA, goldTiles);
-    console.log(goldPaths);
+    // console.log(goldPaths);
     goldPaths
       .filter(path => path.distance < 5)
       .map(path => tiles.find(getTileById(path.id)))
@@ -274,29 +273,26 @@ const getMapOfAdequateSize = (
   minimumGround = 0.45
 ) => {
   let tiles = spawnTiles(width, height, tile_size);
-  console.time("spawn tiles");
+  // console.time("spawn tiles");
   // console.log("Initial tiles spawned.");
-  tiles = addDijkstraNeighbors(tiles);
   for (let i = 0; i < iterations; i++) {
     tiles = doSimulationStep(tiles);
-    tiles = addDijkstraNeighbors(tiles);
   }
   // console.log("Cellular automata simulation finished.");
   const startTile = getOrThrow(tiles.find(getTileAtXY(64, 64)));
   startTile.convertToGroundTile();
   tiles = removeTilesOutsideFill(tiles, floodFill(tiles, startTile));
   // console.log("Excess caves removed.");
-  console.timeEnd("spawn tiles");
-  while (getGroundPercentage(tiles) < minimumGround) {
-    // console.log("Map too small, resetting generation...");
-    tiles = getMapOfAdequateSize(
+  // console.timeEnd("spawn tiles");
+  if (getGroundPercentage(tiles) < minimumGround) {
+    return getMapOfAdequateSize(
       width,
       height,
       tile_size,
       iterations,
       minimumGround
     );
+  } else {
+    return addDijkstraNeighbors(tiles);
   }
-  tiles = addDijkstraNeighbors(tiles);
-  return tiles;
 };
