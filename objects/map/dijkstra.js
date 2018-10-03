@@ -8,7 +8,7 @@ const getDiff = arr1 => arr2 => {
   return arr1.filter(i => arr2.indexOf(i) < 0);
 };
 
-export const getDijkstraPath = (map, tile1, endTile) => {
+export const getDijkstraPath = (map, startTile, endTile) => {
   // console.log("Checking path");
   if (endTile === undefined || endTile.type === "wall") {
     console.log(new Error("Can't get a path to a wall tile!"));
@@ -20,7 +20,7 @@ export const getDijkstraPath = (map, tile1, endTile) => {
 
   const id2 = endTile.id;
 
-  const { parents, distances } = getDistancesFromOrigin(map, tile1);
+  const { parents, distances } = getDistancesFromOrigin(map, startTile);
 
   let path = [];
   let parent = parents[id2];
@@ -177,6 +177,7 @@ export const getMultiplePaths = (map, originTile, destinationTileArr) => {
     let parent = parents[id2];
     while (parent) {
       if (path.includes(parent)) {
+        // this only happens with negative distances
         console.log(
           "Cyclical loop!",
           Object.entries(parents)
@@ -192,19 +193,6 @@ export const getMultiplePaths = (map, originTile, destinationTileArr) => {
     }
     path.reverse();
     path = path.map(id => map.find(getTileById(id)));
-    /*
-    let red = 0;
-    path.map(tile => {
-      red += 10;
-      if (red > 255) red = 255;
-      if (tile.type === "trigger") {
-        return (tile.color = "rgb(255, 90, 0)");
-      }
-      return (tile.color = `rgb(${red}, 0, 255)`);
-    });
-    endTile.color =
-      endTile.type === "trigger" ? "rgb(255, 90, 0)" : "rgb(255, 150, 200)";
-    */
     return {
       id: id2,
       distance: distances[id2],

@@ -23,14 +23,16 @@ const getTileById = id => tile => {
 
 const spawnTiles = (width, height, tile_size): FloorTileType[] => {
   let tiles = [];
+  const ft = floorTile();
+  const wt = wallTile();
   const chanceToStartAlive = 0.46;
   for (let i = 0; i < width; i += tile_size) {
     for (let j = 0; j < height; j += tile_size) {
       let tile;
       if (Math.random() < chanceToStartAlive) {
-        tile = floorTile();
+        tile = { ...ft };
       } else {
-        tile = wallTile();
+        tile = { ...wt };
       }
       tile.x = i;
       tile.y = j;
@@ -58,7 +60,8 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
         };
         // newMap[index] = wallTile(); is too slow
       } else {
-        newMap[index] = { ...oldMap[index] };
+        newMap[index] = Object.assign({}, oldMap[index]);
+        // no noticeable difference between spread and Object.assign
       }
     } else {
       if (nbs <= birthLimit) {
@@ -175,20 +178,8 @@ const floodFill = (
   map
     .filter(t => Object.keys(initialTile.neighbors).some(id => id === t.id))
     .forEach(foundTile => fill.add(foundTile));
-  /*
-  fill.forEach(neighbor => {
-    if (neighbor === undefined) return;
-    if (
-      alreadyChecked.some(([x, y]) => {
-        return neighbor.x === x && neighbor.y === y;
-      }) === false
-    ) {
-      floodFill(map, neighbor, fill, alreadyChecked);
-    }
-  });
-  */
   let changed = true;
-  while (changed){
+  while (changed) {
     let originalLength = fill.size;
     fill.forEach(neighbor => {
       if (
@@ -213,9 +204,6 @@ const removeTilesOutsideFill = (
   map: FloorTileType[],
   fill: FloorTileType[]
 ): FloorTileType[] => {
-  // this is kinda cool if you do the console, it shows how many times the
-  // map generator had to reset
-  // console.log(fill);
   return map.map(
     (tile: FloorTileType): FloorTileType => {
       if (!fill.includes(tile)) {
@@ -260,21 +248,12 @@ export const generateTiles = (
     // console.log("path to furthest tile", getDijkstraPath(tiles, tileA, tileB));
     const goldTiles = tiles.filter(tile => tile.type === "trigger");
     const goldPaths = getMultiplePaths(tiles, tileA, goldTiles);
-    // console.log(goldPaths);
     goldPaths
       .filter(path => path.distance < 5)
       .map(path => tiles.find(getTileById(path.id)))
       .forEach(tile => tile.convertToGroundTile());
   };
   test();
-  /*
-  console.log(
-    "Tiles with trigger neighbors",
-    tiles.filter(tile =>
-      Object.values(tile.neighbors).some(nb => nb.type === "trigger")
-    )
-  );
-  */
   return tiles;
 };
 

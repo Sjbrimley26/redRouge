@@ -63,7 +63,6 @@ const camera: CameraType = Camera();
 gameObjects.set("player", player);
 
 const showPathToClosestGold = map => player => {
-  console.time("get path to gold");
   map.tiles.map(tile => {
     if (tile.color === "rgb(255, 0, 255)" && tile.type === "ground") {
       tile.color = sample(livingTileColors);
@@ -79,8 +78,10 @@ const showPathToClosestGold = map => player => {
 
   const goldTiles = map.tiles.filter(tile => tile.type === "trigger");
   if (goldTiles.length < 1) {
-    return console.log("No more gold to find!");
+    // console.log("No more gold to find!");
+    return;
   }
+  console.time("get path to gold");
   const goldPaths = getMultiplePaths(
     map.tiles,
     map.getTileAtXY(player.x, player.y),
@@ -92,21 +93,6 @@ const showPathToClosestGold = map => player => {
   goldPaths.sort((a, b) => {
     return a.distance - b.distance;
   });
-  // console.log(goldPaths.map(path => path.distance));
-  /*
-  console.log(
-    goldPaths.map(path => {
-      const { id, distance } = path;
-      const foundTile = map.tiles.find(tile => tile.id === id);
-      const { x, y } = foundTile;
-      return {
-        x,
-        y,
-        distance,
-      };
-    })
-  );
-  */
   goldPaths[0].path.forEach(tile => {
     tile.color = "rgb(255, 0, 255)";
   });
@@ -159,6 +145,9 @@ window.onload = () => {
       );
       const { x, y } = getOrThrow(gameObjects.get("player"));
       const tilesInALine = gameMap.getLineOfTiles(x, y, tileX, tileY);
+      if (tilesInALine.length === 0) {
+        return console.log("No line available");
+      }
       let colorValue = 100;
       tilesInALine.forEach(tile => {
         const originalColor = tile.color;
