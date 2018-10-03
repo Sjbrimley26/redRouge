@@ -64,7 +64,7 @@ const createTileMap = (
       y1: number,
       x2: number,
       y2: number
-    ): Array<FloorTileType | void> {
+    ): Array<FloorTileType> {
       const dy = Math.abs(y2 + TILE_SIZE / 2 - (y1 + TILE_SIZE / 2));
       const dx = Math.abs(x2 + TILE_SIZE / 2 - (x1 + TILE_SIZE / 2));
       let xFactor = x2 > x1 ? TILE_SIZE : -TILE_SIZE;
@@ -90,9 +90,9 @@ const createTileMap = (
           y += yFactor;
         }
       }
-      return xyCoords.map((tile: number[]) =>
-        map.getTileAtXY(tile[0], tile[1])
-      );
+      return xyCoords
+        .map((tile: number[]) => map.getTileAtXY(tile[0], tile[1]))
+        .filter(tile => tile !== undefined);
     },
   };
 
