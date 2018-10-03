@@ -108,18 +108,10 @@ const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
 const addDijkstraNeighbors = (oldMap: FloorTileType[]): FloorTileType[] => {
   const setNeighbors = (tile: FloorTileType): FloorTileType => {
     let nbs = getNeighbors(oldMap, tile.x, tile.y);
-    tile.neighbors = {};
     tile.neighbors = nbs.reduce((neighborObj, neighbor) => {
-      if (tile.type === "trigger" && neighbor.type !== "wall") {
-        neighborObj[neighbor.id] = {
-          distance: 0, // so gold is more valuable
-          type: neighbor.type,
-        };
-        return neighborObj;
-      }
       if (neighbor.type !== "wall") {
         neighborObj[neighbor.id] = {
-          distance: neighbor.type === "ground" ? 1 : 0, // so gold is more valuable
+          distance: 1,
           type: neighbor.type,
         };
       }
@@ -174,15 +166,16 @@ const countLivingNeighbors = (tile: FloorTileType): number => {
 // I'm using 64 and 64 each time since that is the players' start location
 const floodFill = (
   map: FloorTileType[],
-  tile: FloorTileType,
+  initialTile: FloorTileType,
   fill = new Set(),
   alreadyChecked = []
 ): FloorTileType[] | void => {
-  const { x, y } = tile;
+  const { x, y } = initialTile;
   alreadyChecked.push([x, y]);
-  Object.keys(tile.neighbors).forEach(id => {
-    fill.add(map.find(t => t.id === id));
-  });
+  map
+    .filter(t => Object.keys(initialTile.neighbors).some(id => id === t.id))
+    .forEach(foundTile => fill.add(foundTile));
+  /*
   fill.forEach(neighbor => {
     if (neighbor === undefined) return;
     if (
@@ -193,6 +186,26 @@ const floodFill = (
       floodFill(map, neighbor, fill, alreadyChecked);
     }
   });
+  */
+  let changed = true;
+  while (changed){
+    let originalLength = fill.size;
+    fill.forEach(neighbor => {
+      if (
+        alreadyChecked.some(([x, y]) => {
+          return neighbor.x === x && neighbor.y === y;
+        }) === false
+      ) {
+        alreadyChecked.push([neighbor.x, neighbor.y]);
+        Object.keys(neighbor.neighbors).forEach(id => {
+          fill.add(map.find(t => t.id === id));
+        });
+      }
+    });
+    if (fill.size === originalLength) {
+      changed = false;
+    }
+  }
   return Array.from(fill);
 };
 
@@ -273,7 +286,7 @@ const getMapOfAdequateSize = (
   minimumGround = 0.45
 ) => {
   let tiles = spawnTiles(width, height, tile_size);
-  // console.time("spawn tiles");
+  console.time("spawn tiles");
   // console.log("Initial tiles spawned.");
   for (let i = 0; i < iterations; i++) {
     tiles = doSimulationStep(tiles);
@@ -283,7 +296,7 @@ const getMapOfAdequateSize = (
   startTile.convertToGroundTile();
   tiles = removeTilesOutsideFill(tiles, floodFill(tiles, startTile));
   // console.log("Excess caves removed.");
-  // console.timeEnd("spawn tiles");
+  console.timeEnd("spawn tiles");
   if (getGroundPercentage(tiles) < minimumGround) {
     return getMapOfAdequateSize(
       width,

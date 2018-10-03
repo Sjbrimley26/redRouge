@@ -63,6 +63,7 @@ const camera: CameraType = Camera();
 gameObjects.set("player", player);
 
 const showPathToClosestGold = map => player => {
+  console.time("get path to gold");
   map.tiles.map(tile => {
     if (tile.color === "rgb(255, 0, 255)" && tile.type === "ground") {
       tile.color = sample(livingTileColors);
@@ -109,6 +110,7 @@ const showPathToClosestGold = map => player => {
   goldPaths[0].path.forEach(tile => {
     tile.color = "rgb(255, 0, 255)";
   });
+  console.timeEnd("get path to gold");
 };
 
 player.addMovementListener("cameraTracker", camera.trackPlayer);
@@ -195,7 +197,10 @@ const startTurn = () => {
   */
   gameMap.updateTiles();
   player.removeMovementListener("goldPath");
-  player.addMovementListener("goldPath", showPathToClosestGold(gameMap));
+  player.addMovementListener(
+    "goldPath",
+    debounce(showPathToClosestGold(gameMap), 100)
+  );
 
   const visibleTiles = gameMap.tiles.filter(tile => tile.visible);
   const visibleEnemies = visibleTiles.filter(tile => tile.type === "enemy");
