@@ -42,11 +42,21 @@ const createTileMap = (
       this.triggerTiles = this.tiles.filter(isType("trigger"));
     },
 
-    setVisibleTiles(player: EntityType) {
-      const { x, y } = player;
-      map.tiles.forEach((tile: FloorTileType) => (tile.visible = false));
-      const neighbors = getNeighbors(map.tiles, x, y, player.sightRadius);
-      getFOV(player, neighbors);
+    setVisibleTiles(gameObjects: any) {
+      return function(player: EntityType) {
+        const { x, y, sightRadius } = player;
+        const objArr = Array.from(gameObjects.values());
+        let affectedTiles = map.tiles
+          .filter(tile => {
+            return !objArr.some(({ x, y }) => {
+              return tile.x == x && tile.y == y;
+            });
+          })
+          .concat(objArr);
+        affectedTiles.forEach((tile: FloorTileType) => (tile.visible = false));
+        const neighbors = getNeighbors(affectedTiles, x, y, sightRadius);
+        getFOV(player, neighbors);
+      };
     },
 
     getLineOfTiles(

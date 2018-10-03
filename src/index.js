@@ -25,6 +25,7 @@ import { getTileCoords } from "../objects/map/utilities";
 import { QuadTree, Camera, MessageBoard } from "../classes";
 
 import Player from "../objects/entities/Player";
+import Enemy from "../objects/entities/Enemy";
 
 import {
   getCanvas,
@@ -60,7 +61,14 @@ const quadtree = QuadTree(0, {
 const player: EntityType = Player();
 const camera: CameraType = Camera();
 
+const { x: enemyX, y: enemyY } = sample(
+  gameMap.groundTiles.filter(tile => tile.x > 256 && tile.y > 256)
+);
+const sampleEnemy = Enemy({ x: enemyX, y: enemyY, name: "enemy1" });
+console.log(sampleEnemy);
+
 gameObjects.set("player", player);
+gameObjects.set(sampleEnemy.id, sampleEnemy);
 
 const showPathToClosestGold = map => player => {
   console.time("get path to gold");
@@ -114,7 +122,6 @@ const showPathToClosestGold = map => player => {
 };
 
 player.addMovementListener("cameraTracker", camera.trackPlayer);
-player.addMovementListener("visibilityTracker", gameMap.setVisibleTiles);
 
 const renderGameObjects = () => {
   getCanvas("background")
@@ -132,7 +139,7 @@ window.onload = () => {
   render();
   startTurn();
   // console.log(player);
-  gameMap.setVisibleTiles(player);
+  gameMap.setVisibleTiles(gameObjects)(player);
   /*
   gameMap.addEffectToTile(192, 128, {
     name: "poison mushroom",
@@ -197,9 +204,14 @@ const startTurn = () => {
   */
   gameMap.updateTiles();
   player.removeMovementListener("goldPath");
+  player.removeMovementListener("visibilityTracker");
   player.addMovementListener(
     "goldPath",
     debounce(showPathToClosestGold(gameMap), 100)
+  );
+  player.addMovementListener(
+    "visibilityTracker",
+    gameMap.setVisibleTiles(gameObjects)
   );
 
   const visibleTiles = gameMap.tiles.filter(tile => tile.visible);

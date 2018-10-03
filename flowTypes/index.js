@@ -37,6 +37,7 @@ export type EntityType = {
   collidingWith: Object,
   onEndTurn: void => void,
   addMovementListener: (string, (any) => any) => void,
+  removeMovementListener: string => void,
   sightRadius: number,
   onMove: void => void,
 };
