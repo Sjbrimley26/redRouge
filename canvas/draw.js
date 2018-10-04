@@ -25,7 +25,7 @@ const renderSprite = async (
     sprite.y >= camera.y &&
     sprite.y <= camera.yMax * 2
   ) {
-    let { size, x, y, color, visible, seen } = sprite;
+    let { size, x, y, color, visible, seen, type } = sprite;
 
     x -= camera.x;
     y -= camera.y;

@@ -8,7 +8,7 @@ const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
   const checkOctant = (player, tiles, octantZone) => {
     const line = ShadowLine();
     let fullShadow = false;
-    for (let row = 0; row <= player.sightRadius; row++) {
+    for (let row = 1; row <= player.sightRadius; row++) {
       for (let col = 0; col <= row; col++) {
         let x, y;
         let [transformX, transformY] = [
@@ -37,6 +37,7 @@ const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
         }
       }
     }
+    player.visible = true;
   };
 
   const transformOctant = (row, col, octant): number[] => {

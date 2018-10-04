@@ -46,6 +46,11 @@ const createTileMap = (
       return function(player: EntityType) {
         const { x, y, sightRadius } = player;
         const objArr = Array.from(gameObjects.values());
+        let enemyOccupiedTiles = map.tiles.filter(tile => {
+          return objArr.some(({ x, y, type }) => {
+            return tile.x == x && tile.y == y && type === "enemy";
+          });
+        });
         let affectedTiles = map.tiles
           .filter(tile => {
             return !objArr.some(({ x, y }) => {

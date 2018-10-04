@@ -89,7 +89,7 @@ const showPathToClosestGold = map => player => {
     // console.log("No more gold to find!");
     return;
   }
-  console.time("get path to gold");
+  // console.time("get path to gold");
   const goldPaths = getMultiplePaths(
     map.tiles,
     map.getTileAtXY(player.x, player.y),
@@ -104,7 +104,7 @@ const showPathToClosestGold = map => player => {
   goldPaths[0].path.forEach(tile => {
     tile.color = "rgb(255, 0, 255)";
   });
-  console.timeEnd("get path to gold");
+  // console.timeEnd("get path to gold");
 };
 
 player.addMovementListener("cameraTracker", camera.trackPlayer);
