@@ -265,7 +265,7 @@ const getMapOfAdequateSize = (
   minimumGround = 0.45
 ) => {
   let tiles = spawnTiles(width, height, tile_size);
-  console.time("spawn tiles");
+  // console.time("spawn tiles");
   // console.log("Initial tiles spawned.");
   for (let i = 0; i < iterations; i++) {
     tiles = doSimulationStep(tiles);
@@ -275,7 +275,7 @@ const getMapOfAdequateSize = (
   startTile.convertToGroundTile();
   tiles = removeTilesOutsideFill(tiles, floodFill(tiles, startTile));
   // console.log("Excess caves removed.");
-  console.timeEnd("spawn tiles");
+  // console.timeEnd("spawn tiles");
   if (getGroundPercentage(tiles) < minimumGround) {
     return getMapOfAdequateSize(
       width,

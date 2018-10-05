@@ -17,7 +17,7 @@ const renderSprite = async (
   camera: CameraType,
   sprite: SpriteType
 ) => {
-  let ctx = await get2DContext(canvas);
+  const ctx = await get2DContext(canvas);
 
   if (
     sprite.x >= camera.x &&
@@ -25,7 +25,8 @@ const renderSprite = async (
     sprite.y >= camera.y &&
     sprite.y <= camera.yMax * 2
   ) {
-    let { size, x, y, color, visible, seen, type } = sprite;
+    let { x, y, color } = sprite;
+    const { size, seen, visible } = sprite;
 
     x -= camera.x;
     y -= camera.y;
@@ -33,8 +34,8 @@ const renderSprite = async (
     if (!visible && !seen) {
       color = "rgb(0, 0, 0)";
     } else if (!visible && seen) {
-      let numString = color.slice(4, color.length - 1);
-      let nums = numString
+      const numString = color.slice(4, color.length - 1);
+      const nums = numString
         .split(",")
         .map(item => parseFloat(item))
         .map(number => {
@@ -56,11 +57,11 @@ const renderMultipleSprites = async (
   arrayOrMap: any
 ) => {
   if (Array.isArray(arrayOrMap)) {
-    for (let sprite of arrayOrMap) {
+    for (const sprite of arrayOrMap) {
       renderSprite(canvas, camera, sprite);
     }
   } else {
-    for (let sprite of arrayOrMap.values()) {
+    for (const sprite of arrayOrMap.values()) {
       renderSprite(canvas, camera, sprite);
     }
   }
@@ -76,13 +77,13 @@ const renderMultipleSprites = async (
 // bblank, black spoce appears.
 
 const zoomIn = async (canvas: CanvasType) => {
-  let ctx = await get2DContext(canvas);
+  const ctx = await get2DContext(canvas);
   ctx.scale(2, 2);
   return canvas;
 };
 
 const zoomOut = async (canvas: CanvasType) => {
-  let ctx = await get2DContext(canvas);
+  const ctx = await get2DContext(canvas);
   ctx.scale(0.5, 0.5);
   return canvas;
 };

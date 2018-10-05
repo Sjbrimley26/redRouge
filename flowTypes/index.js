@@ -40,6 +40,9 @@ export type EntityType = {
   removeMovementListener: string => void,
   sightRadius: number,
   onMove: void => void,
+  color: string,
+  normalColor: string,
+  seen: boolean,
 };
 
 export type FloorTileType = {

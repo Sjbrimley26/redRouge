@@ -11,7 +11,7 @@ const createTileMap = (
   height: number = MAP_HEIGHT,
   tile_size: number = TILE_SIZE
 ) => {
-  let tiles = generateTiles(width, height, tile_size, 4);
+  const tiles = generateTiles(width, height, tile_size, 4);
 
   const isType = (type: string) => (tile: FloorTileType): boolean => {
     return tile.type === type;
@@ -31,7 +31,7 @@ const createTileMap = (
     },
 
     addEffectToTile(x: number, y: number, effect: EffectType) {
-      let affectedTile = this.getTileAtXY(x, y);
+      const affectedTile = this.getTileAtXY(x, y);
       affectedTile.addEffect("rgb(0, 0, 255)", effect);
       this.updateTiles();
     },
@@ -46,12 +46,9 @@ const createTileMap = (
       return function(player: EntityType) {
         const { x, y, sightRadius } = player;
         const objArr = Array.from(gameObjects.values());
-        let enemyOccupiedTiles = map.tiles.filter(tile => {
-          return objArr.some(({ x, y, type }) => {
-            return tile.x == x && tile.y == y && type === "enemy";
-          });
-        });
-        let affectedTiles = map.tiles
+        const enemies = objArr.filter(tile => tile.type === "enemy");
+        enemies.forEach(enemy => (enemy.color = enemy.normalColor));
+        const affectedTiles = map.tiles
           .filter(tile => {
             return !objArr.some(({ x, y }) => {
               return tile.x == x && tile.y == y;
@@ -59,8 +56,21 @@ const createTileMap = (
           })
           .concat(objArr);
         affectedTiles.forEach((tile: FloorTileType) => (tile.visible = false));
+        const enemyOccupiedTiles = map.tiles.filter(tile => {
+          return objArr.some(({ x, y, type }) => {
+            return tile.x == x && tile.y == y && type === "enemy";
+          });
+        });
         const neighbors = getNeighbors(affectedTiles, x, y, sightRadius);
         getFOV(player, neighbors);
+        enemies.forEach(enemy => {
+          if (enemy.visible === false) {
+            const occupiedTile = enemyOccupiedTiles.find(
+              tile => tile.x === enemy.x && tile.y === enemy.y
+            );
+            enemy.color = occupiedTile.color;
+          }
+        });
       };
     },
 
@@ -72,9 +82,9 @@ const createTileMap = (
     ): Array<FloorTileType> {
       const dy = Math.abs(y2 + TILE_SIZE / 2 - (y1 + TILE_SIZE / 2));
       const dx = Math.abs(x2 + TILE_SIZE / 2 - (x1 + TILE_SIZE / 2));
-      let xFactor = x2 > x1 ? TILE_SIZE : -TILE_SIZE;
-      let yFactor = y2 > y1 ? TILE_SIZE : -TILE_SIZE;
-      let xyCoords = [];
+      const xFactor = x2 > x1 ? TILE_SIZE : -TILE_SIZE;
+      const yFactor = y2 > y1 ? TILE_SIZE : -TILE_SIZE;
+      const xyCoords = [];
       let y = y1;
       let x = x1;
       let d = dx - dy;
@@ -85,7 +95,7 @@ const createTileMap = (
         if (x == x2 && y == y2) {
           condition = false;
         }
-        let d2 = 2 * d;
+        const d2 = 2 * d;
         if (d2 > -dy) {
           d -= dy;
           x += xFactor;

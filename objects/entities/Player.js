@@ -14,6 +14,7 @@ const Player = (): EntityType => {
   });
   player.visible = true;
   player.sightRadius = 4;
+  player.seen = true;
   return player;
 };
 

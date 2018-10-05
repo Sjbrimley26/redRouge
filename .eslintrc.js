@@ -37,6 +37,9 @@ module.exports = {
             "always"
         ],
         "no-console": "off",
-        "prettier/prettier": "error"
+        "prettier/prettier": "error",
+        "prefer-const": ["error", {
+          "destructuring": "any",
+        }]
     }
 };

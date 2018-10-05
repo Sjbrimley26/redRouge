@@ -10,12 +10,11 @@ const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
     let fullShadow = false;
     for (let row = 1; row <= player.sightRadius; row++) {
       for (let col = 0; col <= row; col++) {
-        let x, y;
-        let [transformX, transformY] = [
+        const [transformX, transformY] = [
           ...transformOctant(row, col, octantZone),
         ];
-        x = player.x + transformX * 64;
-        y = player.y + transformY * 64;
+        const x = player.x + transformX * 64;
+        const y = player.y + transformY * 64;
         const foundTile = tiles.find(tile => tile.x == x && tile.y == y);
         if (foundTile === undefined) {
           continue;
@@ -24,7 +23,7 @@ const getFOV = (player: EntityType, tiles: FloorTileType[]) => {
         if (fullShadow) {
           visible = false;
         } else {
-          let projection = projectTile(row, col);
+          const projection = projectTile(row, col);
           visible = line.isInShadow(projection) ? false : true;
           if (visible && foundTile.isOpaque) {
             line.add(projection);

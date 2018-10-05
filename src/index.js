@@ -110,13 +110,19 @@ const showPathToClosestGold = map => player => {
 player.addMovementListener("cameraTracker", camera.trackPlayer);
 
 const renderGameObjects = () => {
+  const objArr = Array.from(gameObjects.values());
+  const viewableTiles = gameMap.tiles.filter(tile => {
+    return !objArr.some(({ x, y }) => {
+      return x == tile.x && y == tile.y;
+    });
+  });
   getCanvas("background")
     .then(resizeCanvas)
     // .then(canvas => {
     //  camera.setZoom("zoomOut");
     //  return zoomOut(canvas);
     // })
-    .then(canvas => renderMultipleSprites(canvas, camera, gameMap.tiles))
+    .then(canvas => renderMultipleSprites(canvas, camera, viewableTiles))
     .then(canvas => renderMultipleSprites(canvas, camera, gameObjects));
 };
 
@@ -227,14 +233,14 @@ const startTurn = () => {
 
       gameObjects.set("player", mover);
 
-      for (let sprite of gameObjects.values()) {
+      for (const sprite of gameObjects.values()) {
         quadtree.insert(sprite);
       }
 
       detectCollision(quadtree);
 
       if (checkIfPlayerHitWall(gameObjects.get("player"))) {
-        let tempPlayer: EntityType = getOrThrow(gameObjects.get("player"));
+        const tempPlayer: EntityType = getOrThrow(gameObjects.get("player"));
         MessageBoard.log(`You ran into a ${tempPlayer.collidingWith.type}`);
         tempPlayer.x = originX;
         tempPlayer.y = originY;
@@ -251,7 +257,7 @@ const startTurn = () => {
 
   const endTurn = () => {
     document.removeEventListener("keydown", addKeydownMovement);
-    let tempPlayer: EntityType = getOrThrow(gameObjects.get("player"));
+    const tempPlayer: EntityType = getOrThrow(gameObjects.get("player"));
     doneColliding(tempPlayer);
     tempPlayer.onEndTurn();
     gameObjects.set("player", tempPlayer);

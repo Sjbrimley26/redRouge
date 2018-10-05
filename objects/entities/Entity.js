@@ -7,6 +7,7 @@ import {
   turnBased,
   hasId,
   opaque,
+  memorable,
 } from "./prototypes";
 
 const Entity = function({
@@ -33,10 +34,12 @@ const Entity = function({
     turnBased,
     hasId,
     opaque,
+    memorable,
     {
       x,
       y,
       color,
+      normalColor: color,
       size,
       name,
       type,
