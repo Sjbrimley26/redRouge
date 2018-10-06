@@ -2,9 +2,9 @@
 
 import { resizeCanvas } from "../canvas";
 import { MAP_HEIGHT, MAP_WIDTH, TILE_SIZE } from "../objects/map";
-import type { EntityType, ZoomLevels } from "../flowTypes";
+import type { EntityType, ZoomLevels, CameraType } from "../flowTypes";
 
-const Camera = () => {
+const camera = () => {
   const camera = {
     x: 0,
     y: 0,
@@ -50,6 +50,7 @@ const Camera = () => {
       this.width = Math.floor(this.width / TILE_SIZE) * TILE_SIZE;
       this.height = Math.floor(this.height / TILE_SIZE) * TILE_SIZE;
       this.setMaxes();
+      return this;
     },
 
     setMaxes() {
@@ -96,5 +97,7 @@ const Camera = () => {
 
   return camera;
 };
+
+const Camera: CameraType = camera();
 
 export default Camera;

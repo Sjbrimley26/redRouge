@@ -1,6 +1,6 @@
 import { floorTile, redTile, wallTile, livingTiles } from "./groundTiles";
 
-import { livingTileColors } from "./colors";
+import { livingTileColors, wallColor } from "./colors";
 
 module.exports = {
   wallTile,
@@ -8,4 +8,5 @@ module.exports = {
   floorTile,
   livingTiles,
   livingTileColors,
+  wallColor,
 };

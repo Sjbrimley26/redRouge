@@ -4,7 +4,7 @@
 
 body, html {
   width: 100vw;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 60px);
   overflow: hidden;
   margin: 0;
   background: black;
@@ -19,8 +19,8 @@ body, html {
 
 .ui {
   position: absolute;
-  top: calc(100vh - 80px);
-  height: 80px;
+  top: calc(100vh - 60px);
+  height: 60px;
   width: 100vw;
   background: lightgray;
 }

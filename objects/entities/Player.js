@@ -11,10 +11,12 @@ const Player = (): EntityType => {
     y: 64,
     name: "Player",
     type: "player",
+    hp: 100,
   });
   player.visible = true;
-  player.sightRadius = 4;
+  player.sightRadius = 5;
   player.seen = true;
+  player.damage = 10;
   return player;
 };
 

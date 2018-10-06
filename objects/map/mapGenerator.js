@@ -2,7 +2,7 @@
 // https://gamedevelopment.tutsplus.com/tutorials/generate-random-cave-levels-using-cellular-automata--gamedev-9664
 
 import sample from "lodash/sample";
-import { wallTile, floorTile, livingTileColors } from "../tiles";
+import { wallTile, floorTile, livingTileColors, wallColor } from "../tiles";
 import type { FloorTileType } from "../../flowTypes";
 import { TILE_SIZE, MAP_HEIGHT, MAP_WIDTH } from "./config";
 import { get_random_number, get_new_id } from "../../utilities";
@@ -12,17 +12,10 @@ import {
   // getFurthestTile,
   getMultiplePaths,
 } from "./dijkstra";
-
-const getTileAtXY = (x, y) => tile => {
-  return tile.x === x && tile.y === y;
-};
-
-const getTileById = id => tile => {
-  return tile.id === id;
-};
+import { getTileById, getTileAtXY } from "./utilities";
 
 const spawnTiles = (width, height, tile_size): FloorTileType[] => {
-  let tiles = [];
+  const tiles = [];
   const ft = floorTile();
   const wt = wallTile();
   const chanceToStartAlive = 0.46;
@@ -46,16 +39,16 @@ const spawnTiles = (width, height, tile_size): FloorTileType[] => {
 const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
   const deathLimit = 3;
   const birthLimit = 4;
-  let newMap = [];
+  const newMap = [];
 
   const simulate = (tile, index): void => {
-    let nbs = countLivingNeighbors(tile);
+    const nbs = countLivingNeighbors(tile);
     if (oldMap[index].type === "ground") {
       if (nbs >= deathLimit) {
         newMap[index] = {
           ...oldMap[index],
           type: "wall",
-          color: "rgb(50, 50, 50)",
+          color: wallColor,
           isOpaque: true,
         };
         // newMap[index] = wallTile(); is too slow
@@ -83,12 +76,12 @@ const doSimulationStep = (oldMap: FloorTileType[]): FloorTileType[] => {
 
 const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
   const treasureLimit = 3;
-  let newMap = [...oldMap];
+  const newMap = [...oldMap];
   const maxAmountOfTreasure = 12;
   let treasurePlaced = 0;
 
   const place = (tile, index): void => {
-    let nbs = countLivingNeighbors(tile);
+    const nbs = countLivingNeighbors(tile);
     if (
       tile.type === "ground" &&
       nbs === treasureLimit &&
@@ -110,7 +103,7 @@ const addTreasure = (oldMap: FloorTileType[]): FloorTileType[] => {
 
 const addDijkstraNeighbors = (oldMap: FloorTileType[]): FloorTileType[] => {
   const setNeighbors = (tile: FloorTileType): FloorTileType => {
-    let nbs = getNeighbors(oldMap, tile.x, tile.y);
+    const nbs = getNeighbors(oldMap, tile.x, tile.y);
     tile.neighbors = nbs.reduce((neighborObj, neighbor) => {
       if (neighbor.type !== "wall") {
         neighborObj[neighbor.id] = {
@@ -123,7 +116,7 @@ const addDijkstraNeighbors = (oldMap: FloorTileType[]): FloorTileType[] => {
     return tile;
   };
 
-  let newMap = oldMap.map(setNeighbors);
+  const newMap = oldMap.map(setNeighbors);
   return newMap;
 };
 
@@ -133,15 +126,15 @@ export const getNeighbors = (
   y: number,
   distance: number = 1
 ): FloorTileType[] => {
-  let neighbors = [];
+  const neighbors = [];
   for (let i = -distance; i < distance + 1; i++) {
     for (let j = -distance; j < distance + 1; j++) {
       if (i == 0 && j == 0) {
         // exclude the tile in question
         continue;
       }
-      let neighborX = x + i * TILE_SIZE;
-      let neighborY = y + j * TILE_SIZE;
+      const neighborX = x + i * TILE_SIZE;
+      const neighborY = y + j * TILE_SIZE;
 
       if (
         neighborX < 0 ||
@@ -152,7 +145,7 @@ export const getNeighbors = (
         continue;
       }
 
-      let neighbor = map.find(getTileAtXY(neighborX, neighborY));
+      const neighbor = map.find(getTileAtXY(neighborX, neighborY));
       if (neighbor === undefined) {
         continue;
       }
@@ -180,7 +173,7 @@ const floodFill = (
     .forEach(foundTile => fill.add(foundTile));
   let changed = true;
   while (changed) {
-    let originalLength = fill.size;
+    const originalLength = fill.size;
     fill.forEach(neighbor => {
       if (
         alreadyChecked.some(([x, y]) => {
@@ -207,7 +200,7 @@ const removeTilesOutsideFill = (
   return map.map(
     (tile: FloorTileType): FloorTileType => {
       if (!fill.includes(tile)) {
-        tile.color = "rgb(50, 50, 50)";
+        tile.color = wallColor;
         tile.type = "wall";
         tile.isOpaque = true;
       }
@@ -243,7 +236,7 @@ export const generateTiles = (
   console.timeEnd("generateTiles");
   // console.log(tiles);
   const test = () => {
-    let tileA = tiles.find(getTileAtXY(64, 64));
+    const tileA = tiles.find(getTileAtXY(64, 64));
     // let tileB = getFurthestTile(tiles, tileA);
     // console.log("path to furthest tile", getDijkstraPath(tiles, tileA, tileB));
     const goldTiles = tiles.filter(tile => tile.type === "trigger");

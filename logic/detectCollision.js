@@ -1,12 +1,12 @@
 const detectCollision = async quadtree => {
-  let objects = [];
+  const objects = [];
   quadtree.getAllObjects(objects);
 
-  for (let objX of objects) {
-    let obj = [];
+  for (const objX of objects) {
+    const obj = [];
     quadtree.findObjects(obj, objX);
 
-    for (let objY of obj) {
+    for (const objY of obj) {
       if (objX.id === objY.id) {
         continue;
       }
@@ -14,18 +14,23 @@ const detectCollision = async quadtree => {
         (objX.isCollidableWith(objY) || objY.isCollidableWith(objX)) &&
         (objX.x === objY.x && objX.y === objY.y)
       ) {
-        let originalX = {
-          ...objX,
-        };
-        let originalY = {
-          ...objY,
-        };
-        objX.collidingWith = originalY;
-        objY.collidingWith = originalX;
+        const originalX = { ...objX };
+        const originalY = { ...objY };
+        objX.collidingWith = objY;
+        objY.collidingWith = objX;
         objX.isColliding = true;
         objY.isColliding = true;
-        objX.onCollide(originalY);
-        objY.onCollide(originalX);
+        if (
+          objX.hasOwnProperty("attacking") &&
+          objY.hasOwnProperty("attacking")
+        ) {
+          if (objX.attacking) {
+            objX.onCollide(objY);
+          }
+        } else {
+          objX.onCollide(originalY);
+          objY.onCollide(originalX);
+        }
       }
     }
   }

@@ -4,7 +4,7 @@
 
 import Tile from "../entities/Tile";
 import sample from "lodash/sample";
-import { livingTileColors } from "./colors";
+import { livingTileColors, wallColor } from "./colors";
 
 const defaultTile = {
   size: 64,
@@ -25,7 +25,7 @@ export const floorTile = function() {
 export const wallTile = function() {
   return Tile({
     ...defaultTile,
-    color: "rgb(50, 50, 50)",
+    color: wallColor,
     type: "wall",
     isOpaque: true,
   });

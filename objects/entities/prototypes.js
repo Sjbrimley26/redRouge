@@ -3,13 +3,11 @@
 import { triggerStatusEffect } from "../statusEffects";
 import { TILE_SIZE } from "../map/config";
 import sample from "lodash/sample";
-import { get_new_id } from "../../utilities";
-import { doneColliding } from "../../logic";
 import MessageBoard from "../../classes/MessageBoard";
 import type { FloorTileType } from "../../flowTypes";
 
 const getMap = () => {
-  let map: Map<string, any> = new Map();
+  const map: Map<string, any> = new Map();
   return map;
 };
 
@@ -24,9 +22,7 @@ export const collidable = {
     return this.collidableWith.some(type => type === object.type);
   },
 
-  onCollide() {
-    doneColliding(this);
-  },
+  onCollide() {},
 
   isColliding: false,
 
@@ -78,7 +74,7 @@ export const moveable = {
         // rather than making a new tag.
         // I might want to make it so that it does the stronger of
         // the two effects, or maybe some way of stacking the effects.
-        let originalValue = this.limitedMovementListeners.get(tag);
+        const originalValue = this.limitedMovementListeners.get(tag);
         this.limitedMovementListeners.set(tag, originalValue + turnLimit);
       }
       return;
@@ -96,13 +92,13 @@ export const moveable = {
   },
 
   onMove() {
-    for (let fn of this.movementListeners.values()) {
+    for (const fn of this.movementListeners.values()) {
       fn.call(null, this);
     }
 
-    for (let tag of this.movementListeners.keys()) {
+    for (const tag of this.movementListeners.keys()) {
       if (this.limitedMovementListeners.has(tag)) {
-        let originalValue = this.limitedMovementListeners.get(tag);
+        const originalValue = this.limitedMovementListeners.get(tag);
 
         if (originalValue > 1) {
           this.limitedMovementListeners.set(tag, originalValue - 1);
@@ -124,10 +120,6 @@ export const moveable = {
 export const turnBased = {
   onStartTurn() {},
   onEndTurn() {},
-};
-
-export const hasId = {
-  id: get_new_id(),
 };
 
 export const opaque = {

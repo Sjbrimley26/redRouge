@@ -5,6 +5,7 @@ import type { FloorTileType, EffectType, EntityType } from "../../flowTypes";
 import { generateTiles, getNeighbors } from "./mapGenerator";
 import getFOV from "./fov";
 import { getTileCoords } from "./utilities";
+import { getOrThrow } from "../../logic";
 
 const createTileMap = (
   width: number = MAP_WIDTH,
@@ -65,8 +66,10 @@ const createTileMap = (
         getFOV(player, neighbors);
         enemies.forEach(enemy => {
           if (enemy.visible === false) {
-            const occupiedTile = enemyOccupiedTiles.find(
-              tile => tile.x === enemy.x && tile.y === enemy.y
+            const occupiedTile = getOrThrow(
+              enemyOccupiedTiles.find(
+                tile => tile.x === enemy.x && tile.y === enemy.y
+              )
             );
             enemy.color = occupiedTile.color;
           }
@@ -79,7 +82,7 @@ const createTileMap = (
       y1: number,
       x2: number,
       y2: number
-    ): Array<FloorTileType> {
+    ): FloorTileType[] {
       const dy = Math.abs(y2 + TILE_SIZE / 2 - (y1 + TILE_SIZE / 2));
       const dx = Math.abs(x2 + TILE_SIZE / 2 - (x1 + TILE_SIZE / 2));
       const xFactor = x2 > x1 ? TILE_SIZE : -TILE_SIZE;
@@ -107,7 +110,7 @@ const createTileMap = (
       }
       return xyCoords
         .map((tile: number[]) => map.getTileAtXY(tile[0], tile[1]))
-        .filter(tile => tile !== undefined);
+        .filter(Boolean);
     },
   };
 

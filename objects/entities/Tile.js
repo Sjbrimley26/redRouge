@@ -38,6 +38,7 @@ const Tile = function({
     isOpaque,
     convertToGroundTile,
     addEffect,
+    occupiedBy: [],
   });
 };
 

@@ -41,16 +41,6 @@ export const getDijkstraPath = (map, startTile, endTile) => {
   }
   path.reverse();
   path = path.map(id => map.find(getTileById(id)));
-  let red = 0;
-  path.map(tile => {
-    red += 10;
-    if (red > 255) red = 255;
-    if (tile.type === "trigger") {
-      return (tile.color = "rgb(255, 90, 0)");
-    }
-    return (tile.color = `rgb(${red}, 0, 255)`);
-  });
-  endTile.color = "rgb(255, 150, 200)";
   return {
     distance: distances[id2],
     path,
@@ -87,7 +77,7 @@ const getDistancesFromOrigin = (
       parents: {},
     };
   }
-  let originID = originTile.id;
+  const originID = originTile.id;
   parents[originID] = undefined;
   const processed = [];
   const allCheckableIDs = map
@@ -100,30 +90,30 @@ const getDistancesFromOrigin = (
 
   processed.push(originID);
   Object.entries(originTile.neighbors).forEach(pair => {
-    let id = pair[0];
-    let neighbor = pair[1];
+    const id = pair[0];
+    const neighbor = pair[1];
     distances[id] = neighbor.distance;
     parents[id] = originTile.id;
   });
 
   let iterations = 0;
-  let iterationLimit = Math.floor(allCheckableIDs.length * 1.1);
+  const iterationLimit = Math.floor(allCheckableIDs.length * 1.1);
   while (
     !allCheckableIDs.every(id => processed.includes(id)) &&
     iterations < iterationLimit
   ) {
     iterations++;
     Object.entries(distances).forEach(combo => {
-      let id = combo[0];
-      let distance = combo[1];
+      const id = combo[0];
+      const distance = combo[1];
       if (processed.includes(id)) {
         return;
       }
-      let tile = map.find(getTileById(id));
+      const tile = map.find(getTileById(id));
       Object.entries(tile.neighbors).forEach(pair => {
-        let tileID = pair[0];
-        let neighbor = pair[1];
-        let newDistance = distance + neighbor.distance;
+        const tileID = pair[0];
+        const neighbor = pair[1];
+        const newDistance = distance + neighbor.distance;
         if (Object.keys(distances).includes(tileID)) {
           if (distances[tileID] > newDistance) {
             if (tileID !== originID) {

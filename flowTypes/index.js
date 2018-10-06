@@ -15,7 +15,7 @@ export type CameraType = {
   width: number,
   height: number,
   trackPlayer: EntityType => CameraType | void,
-  resize: void => void,
+  resize: void => Promise<CameraType>,
   setZoom: ZoomLevels => void,
 };
 
@@ -43,6 +43,10 @@ export type EntityType = {
   color: string,
   normalColor: string,
   seen: boolean,
+  visible: boolean,
+  hp: number,
+  damage: number,
+  attacking: boolean,
 };
 
 export type FloorTileType = {
@@ -59,6 +63,7 @@ export type FloorTileType = {
   effect: EffectType | void,
   id: string,
   neighbors: any | void,
+  occupiedBy: Array<?string>,
 };
 
 export type EffectType = {
