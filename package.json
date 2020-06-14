@@ -45,5 +45,8 @@
   "dependencies": {
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0"
+  },
+  "engine": {
+    "node": "10.x"
   }
 }
